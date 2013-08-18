@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
  
- <title>DaikiMaekawa.github.com</title>
+ <title>Jekyll Bootstrap</title>
  <link href="http://username.github.io/" rel="self"/>
  <link href="http://username.github.io"/>
- <updated>2013-08-18T17:07:08+09:00</updated>
+ <updated>2013-08-18T16:06:59+09:00</updated>
  <id>http://username.github.io</id>
  <author>
-   <name>Daiki Maekawa</name>
+   <name>Name Lastname</name>
    <email>blah@email.test</email>
  </author>
 
