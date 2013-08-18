@@ -9,13 +9,12 @@ pygments: true
 # Themes are encouraged to use these universal variables 
 # so be sure to set them if your theme uses them.
 #
-title : DaikiMaekawa.github.com
+title : ソフトウェア開発初心者の日記
 tagline: Site Tagline
 author :
   name : Daiki Maekawa
-  email : blah@email.test
+  email : method_aspect_card@yahoo.co.jp
   github : DaikiMaekawa
-  twitter : username
   feedburner : feedname
 
 # The production_url is only used when full-domain names are needed
