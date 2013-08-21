@@ -1,21 +1,352 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0">
 <channel>
-        <title>DaikiMaekawa.github.com</title>
-        <description>DaikiMaekawa.github.com - Daiki Maekawa</description>
+        <title>ソフトウェア開発初心者の日記</title>
+        <description>ソフトウェア開発初心者の日記 - Daiki Maekawa</description>
         <link>http://username.github.io</link>
         <link>http://username.github.io</link>
-        <lastBuildDate>2013-08-19T01:01:25+09:00</lastBuildDate>
-        <pubDate>2013-08-19T01:01:25+09:00</pubDate>
+        <lastBuildDate>2013-08-21T13:02:09+09:00</lastBuildDate>
+        <pubDate>2013-08-21T13:02:09+09:00</pubDate>
         <ttl>1800</ttl>
 
 
         <item>
-                <title>Test</title>
-                <description>&lt;p&gt;テスト用の記事&lt;/p&gt;</description>
-                <link>http://username.github.io/lessons/2013/08/18/test</link>
-                <guid>http://username.github.io/lessons/2013/08/18/test</guid>
+                <title>Lcdの制御方法</title>
+                <description>&lt;p&gt;組み込みプログラムの入門として&lt;/p&gt;
+
+&lt;p&gt;1 ~ 9までの数字を0.1秒毎にカウントアップしてLCDの1マス目に表示するプログラムを作成しました。&lt;/p&gt;
+
+&lt;p&gt;LCDは&lt;a href='http://akizukidenshi.com/catalog/g/gP-01797/' title='SD1602HUOB'&gt;SD1602HUOB&lt;/a&gt;を使用します。&lt;/p&gt;
+
+&lt;p&gt;それでは、仕様書の読み方から解説していきたいと思います。&lt;/p&gt;
+
+&lt;h2 id='lcd'&gt;LCDの仕様から必要な情報を読み取ろう&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;基礎知識&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;R/S端子 
+ - Low : コマンドと認識
+ - High: 文字データと認識
+
+R/W端子
+ - Low : Writeモード
+ - High: Readモード
+
+E端子
+ - Low -&amp;gt; Highに変化で命令を回収&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;今回はR/WはGNDに落としているため常にWriteモードです。&lt;/p&gt;
+
+&lt;p&gt;E端子は意図的な命令であることと信号を送るタイミングを知らせるために使います。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;用意されたコマンド&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Clear Display       0000 0001
+Cursor At Home      0000 0010
+Entry Mode Set      0000 0100
+Display ON/OFF      0000 1000
+Cursor/DisplayShift 0001 0000
+Function Set        0010 0000
+CGRAW AddressSet    0100 0000
+DDRAW AddressSet    1000 0000&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;どの位置に1を立てるかでどのコマンドかが判別されます。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;LCDの初期化手順&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;電源ON
+15ms以上待つ
+8ビットモードに設定
+4.1ms以上待つ
+8ビットモードに設定
+100us以上待つ
+8ビットモードに設定
+4ビットモードに設定
+ファンクション設定
+ディスプレイOFF
+ディスプレイON
+エントリーモード&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id='lcd'&gt;LCDの制御関数を作ろう&lt;/h2&gt;
+
+&lt;p&gt;まず、ピンの名前をわかりやすく定義しましょう。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#define LCD_RS LATBbits.LATB5
+#define LCD_E  LATBbits.LATB4
+#define LCD_D4 LATBbits.LATB9
+#define LCD_D5 LATBbits.LATB10
+#define LCD_D6 LATBbits.LATB11
+#define LCD_D7 LATBbits.LATB12&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;8ビットモード用指令関数&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void lcd_out8(unsigned char dat){
+    LCD_RS = 0;
+    LCD_E  = 1;
+    LCD_D4 = (dat &amp;amp; 0x01);
+    dat = dat &amp;gt;&amp;gt; 1;
+    LCD_D5 = (dat &amp;amp; 0x01);
+    dat = dat &amp;gt;&amp;gt; 1;
+    LCD_D6 = (dat &amp;amp; 0x01);
+    dat = dat &amp;gt;&amp;gt; 1;
+    LCD_D7 = (dat &amp;amp; 0x01);
+
+    wait_usec(50);
+    LCD_E = 0;
+    wait_usec(50);
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;LCD_RS = 0&lt;/strong&gt;&lt;br /&gt;LCDにコマンドを送信&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;LCD_E = 1&lt;/strong&gt;&lt;br /&gt;コマンドを回収(450nsecの時間が必要)&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;LCD_D&lt;span&gt;4-7&lt;/span&gt; = (dat &amp;amp; 0x01)&lt;/strong&gt;&lt;br /&gt;LCDの上位4本に指令を送信&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;wait_usec(50)&lt;/strong&gt;&lt;br /&gt;上記の命令を回収&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;LCD_E = 0&lt;/strong&gt;&lt;br /&gt;E端子をLowへ&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;上位ピンに一つずつ送る理由&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src='/images/SPPBoard.BMP' alt='SPPBoard' /&gt;&lt;/p&gt;
+
+&lt;p&gt;LCDの上位4ピンは9, 10, 11, 12に接続されています。&lt;/p&gt;
+
+&lt;p&gt;char型は8ビットなのでまとめてLATBで出力に変更できないからです。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;4ビットモード用指令関数&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void lcd_out4(int rs, unsigned char dat){
+    unsigned char bk = dat;
+
+    LCD_RS = rs;
+    LCD_E  = 1;
+    
+    bk = bk &amp;gt;&amp;gt; 4;
+    LCD_D4 = (bk &amp;amp; 0x01);
+    bk = bk &amp;gt;&amp;gt; 1;
+    LCD_D5 = (bk &amp;amp; 0x01);
+    bk = bk &amp;gt;&amp;gt; 1;
+    LCD_D6 = (bk &amp;amp; 0x01);
+    bk = bk &amp;gt;&amp;gt; 1;
+    LCD_D7 = (bk &amp;amp; 0x01);
+
+    wait_usec(50);
+    LCD_E = 0;
+    wait_usec(50);
+
+    LCD_E = 1;
+
+    LCD_D4 = (dat &amp;amp; 0x01);
+    dat = dat &amp;gt;&amp;gt; 1;
+    LCD_D5 = (dat &amp;amp; 0x01);
+    dat = dat &amp;gt;&amp;gt; 1;
+    LCD_D6 = (dat &amp;amp; 0x01);
+    dat = dat &amp;gt;&amp;gt; 1;
+    LCD_D7 = (dat &amp;amp; 0x01);
+
+    wait_usec(50);
+    LCD_E = 0;
+    wait_usec(50);
+    LCD_RS = 0;
+
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;引数rsが0の時コマンド、1の時文字データとして扱います。&lt;/p&gt;
+
+&lt;p&gt;LCDへは上位4ビット、下位4ビットの順に送信します。&lt;/p&gt;
+
+&lt;p&gt;引数datが0010 1000だとすると&lt;/p&gt;
+
+&lt;p&gt;それぞれ反転して0010 1000となるます。&lt;/p&gt;
+
+&lt;p&gt;LCD_D7が12ビット目であることを思い出せば理解できると思います。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;LCD初期化関数&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void lcd_format(void){
+    
+    wait_msec(20);
+    lcd_out8(0x23);
+    wait_msec(10);
+    lcd_out8(0x23);
+    lcd_out8(0x22);
+    lcd_out4(0, 0x28);
+    lcd_out4(0, 0x0E);
+    lcd_out4(0, 0x06);
+    lcd_out4(0, 0x02);
+
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;仕様書よりも長めにwaitを入れています。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;lcd_out8(0x23)&lt;/strong&gt;&lt;br /&gt;Function Set コマンド&lt;br /&gt;0010 0011 -&amp;gt; (認識)0011 0000&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;lcd_out8(0x22)&lt;/strong&gt;&lt;br /&gt;Function Set コマンド&lt;br /&gt;0010 0010 -&amp;gt; (認識)0010 0000&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;lcd_out4(0, 0x28)&lt;/strong&gt;&lt;br /&gt;Function Set コマンド&lt;br /&gt;0010 1000&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;lcd_out4(0, 0x0E)&lt;/strong&gt;&lt;br /&gt;Display ON/OFF コマンド&lt;br /&gt;0000 1110&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;lcd_out4(0, 0x06)&lt;/strong&gt;&lt;br /&gt;Entry ModeSet コマンド&lt;br /&gt;0000 0110&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;lcd_out4(0, 0x02)&lt;/strong&gt;&lt;br /&gt;Cursor At Home コマンド&lt;br /&gt;0000 0010&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;1文字表示関数&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void lcd_data(unsigned char asci){
+    lcd_out4(1, asci);
+    wait_usec(50);
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;文字列表示関数&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void lcd_puts(unsigned char *str){
+    while(*str != 0x00){
+        lcd_out4(1, *str);
+        str++;
+    }
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;数字表示関数&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void lcd_convert(unsigned int number){
+    lcd_data(&amp;#39;0&amp;#39; + number);
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;画面消去関数&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void lcd_clear(void){
+    lcd_out4(0, 0x01);
+    wait_usec(1650);
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id='lcd'&gt;LCD制御関数を使ってみよう&lt;/h2&gt;
+
+&lt;p&gt;まずはコンフィギュレーション設定をしましょう。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;_FOSC(CSW_FSCM_OFF &amp;amp; XT_PLL8);
+_FWDT(WDT_OFF);
+_FBORPOR(PBOR_ON &amp;amp; BORV_20 &amp;amp; PWRT_64 &amp;amp; MCLR_EN);
+_FGS(CODE_PROT_OFF);&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;_FOSC(CSW_FSCM_OFF &amp;amp; XT_PLL8)&lt;/strong&gt;&lt;br /&gt;クロック停止の際の処理を監視せず、内部の別クロック源への切り替えもしないので&lt;br /&gt;CSW(クロック切り替え)とFSCM(クロックのエラー検出)をOFFに設定&lt;br /&gt;8x10MHz(外部発振器) = 80MHz(クロック周波数)&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;_FWDT(WDT_OFF)&lt;/strong&gt;&lt;br /&gt;特にシステムの監視を行わないためウォッチドックタイマを無効&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;_FBORPOR(PBOR_ON &amp;amp; BORV_20 &amp;amp; PWRT_64 &amp;amp; MCLR_EN)&lt;/strong&gt;&lt;br /&gt;電源ON直後に動作をリセット&lt;br /&gt;電源OFF直後に動作停止&lt;br /&gt;電源OFFを検出する電圧-&amp;gt;2.0V&lt;br /&gt;電源ON直後のリセットパルス幅-&amp;gt;64msec&lt;br /&gt;MCLRピンを有効&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;_FGS(CODE_PROT_OFF)&lt;br /&gt;コードプロテクト-&amp;gt;読み出し・書き込みともにOFF&lt;/strong&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;main文の中&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;unsigned char msgA[] = &amp;quot;start&amp;quot;;
+LATB = 0x0;
+TRISB = 0x00;
+
+lcd_format();
+
+lcd_puts(msgA);
+wait_msec(1000);
+
+ConfigIntTimer1(T1_INT_PRIOR_3 &amp;amp; T1_INT_ON);
+OpenTimer1(T1_ON &amp;amp; T1_GATE_OFF &amp;amp; T1_PS_1_64 &amp;amp; 
+           T1_SYNC_EXT_OFF &amp;amp; T1_SOURCE_INT, 31250-1);
+
+while(1);&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;ConfigIntTimer1(T1_INT_PRIOR_3 &amp;amp; T1_INT_ON)&lt;/strong&gt;&lt;br /&gt;優先度3 &amp;amp; 割り込み許可&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;OpenTimer1(&amp;#8230;)&lt;/strong&gt;&lt;br /&gt;タイマ周期=(4/クロック周波数)x(プリスケーラ分周比)x(PR1設定-1) 100msec = 4/80MHz x 64 x 31250&lt;/p&gt;
+
+&lt;p&gt;T1_ON : タイマ1を有効&lt;br /&gt;T1_GATE_OFF : ゲートタイマモードOFF(外部信号の時間幅の計測をしない)&lt;br /&gt;T1_PS_1_64 : プリスケーラ分周比を64に設定&lt;br /&gt;T1_SYNC_EXT_OFF : タイマ非同期&lt;br /&gt;T1_SOURCE_INT : 内部クロックを使用&lt;br /&gt;31250-1 : PR1設定&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;タイマ1の定義&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void _ISR _T1Interrupt(void){
+    static unsigned int TimeCount1 = 0;
+    IFS0bits.T1IF = 0;
+
+    TimeCount1++;
+
+    if(TimeCount1 &amp;lt;= 9){
+        lcd_clear();
+        lcd_convert(TimeCount1);
+    }else{
+        TimeCount1 = 0;
+    }
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;IFS0bits.T1IF = 0&lt;/strong&gt;&lt;br /&gt;割り込みサブルーチンの構文では割り込みフラグをクリアできないため&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;100msec毎に1~9までの範囲でカウントアップするプログラムができました。&lt;/strong&gt;&lt;/p&gt;</description>
+                <link>http://username.github.io/SPPBoard/2013/08/18/LCD%E3%81%AE%E5%88%B6%E5%BE%A1%E6%96%B9%E6%B3%95</link>
+                <guid>http://username.github.io/SPPBoard/2013/08/18/LCDの制御方法</guid>
                 <pubDate>2013-08-18T00:00:00+09:00</pubDate>
+        </item>
+
+        <item>
+                <title>教育用マイコンボードの開発</title>
+                <description>&lt;p&gt;千葉工業大学の中島研究室によって教育用マイコンボードであるSPPBoardが開発されました。&lt;/p&gt;
+
+&lt;p&gt;SPPは(独)科学技術振興機構のサイエンスパートナーシッププロジェクトの略で千葉県全ての工業高校と連携し、SPPBoardを用いたロボット活用教育講座が開催されました。&lt;/p&gt;
+
+&lt;p&gt;中核であるマイコンはdsPIC30F3014を採用し、開発ツールとしてMPLABとC30コンパイラを使用します。&lt;/p&gt;
+
+&lt;p&gt;提供されるのはボードだけでソースコードは自前で用意する必要があります。(一応LEDを光らせるだけならサンプルがあります)&lt;/p&gt;
+
+&lt;h2 id='id20'&gt;回路図&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src='/images/SPPBoard.BMP' alt='SPPBoard' /&gt;&lt;/p&gt;
+
+&lt;p&gt;このブログではサンプルプログラムを作成、解説しながらこの開発ボードを宣伝していこうと思います。&lt;/p&gt;</description>
+                <link>http://username.github.io/SPPBoard/2013/08/17/%E6%95%99%E8%82%B2%E7%94%A8%E3%83%9E%E3%82%A4%E3%82%B3%E3%83%B3%E3%83%9C%E3%83%BC%E3%83%89%E3%81%AE%E9%96%8B%E7%99%BA</link>
+                <guid>http://username.github.io/SPPBoard/2013/08/17/教育用マイコンボードの開発</guid>
+                <pubDate>2013-08-17T00:00:00+09:00</pubDate>
         </item>
 
         <item>

@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
  
- <title>DaikiMaekawa.github.com</title>
+ <title>ソフトウェア開発初心者の日記</title>
  <link href="http://username.github.io/" rel="self"/>
  <link href="http://username.github.io"/>
- <updated>2013-08-18T18:01:49+09:00</updated>
+ <updated>2013-08-19T01:18:11+09:00</updated>
  <id>http://username.github.io</id>
  <author>
    <name>Daiki Maekawa</name>
    <email>method_aspect_card@yahoo.co.jp</email>
  </author>
 
+ 
+ <entry>
+   <title>Test</title>
+   <link href="http://username.github.io/lessons/2013/08/18/test"/>
+   <updated>2013-08-18T00:00:00+09:00</updated>
+   <id>http://username.github.io/lessons/2013/08/18/test</id>
+   <content type="html">&lt;p&gt;テスト用の記事&lt;/p&gt;</content>
+ </entry>
  
  <entry>
    <title>Jekyll Introduction</title>
