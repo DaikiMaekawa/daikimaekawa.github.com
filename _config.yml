@@ -9,7 +9,7 @@ pygments: true
 # Themes are encouraged to use these universal variables 
 # so be sure to set them if your theme uses them.
 #
-title : ソフトウェア開発初心者の日記
+title : ゼロから始めるロボットプログラミング入門講座
 tagline: Site Tagline
 author :
   name : Daiki Maekawa
