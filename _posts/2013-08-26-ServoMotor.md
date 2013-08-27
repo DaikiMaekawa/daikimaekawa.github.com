@@ -8,9 +8,16 @@ tags : [dsPIC]
 
 {% include JB/setup %}
 
+##環境
+
+    基盤       : SPPBoard(dsPIC30F3014使用)
+    コンパイラ  : C30
+
+##はじめに
+
 今回はSPPBoardを用いてサーボモータ(S3003)を制御する方法を解説します。
 
-S3003はPWM制御を使用することで簡単に制御することができます。
+S3003はPWM制御を使用することで簡単に制御することができます。(S3003はRCサーボ)
 
 つまり、dsPIC入門講座02で解説したOutPutCompare(OC)モジュールを使えばよいのです。
 
@@ -24,7 +31,7 @@ S3003はPWM制御を使用することで簡単に制御することができま
 
 ##サーボモータの仕様書から必要な情報を読み取ろう
 
-##TODO 仕様書
+[仕様書を入手](http://www.es.co.th/schemetic/pdf/et-servo-s3003.pdf "S3003") 
 
 ###タイマの割り込み周期
 
@@ -44,7 +51,7 @@ S3003が認識する周期幅が6 ~ 25msの範囲なので20msくらいの周期
 
 タイマの割り込み周期が0.01msなので2000カウントで20msとなります。
 
-##TODO サーボの説明図
+![FutabaServo]({{ BASE_PATH }}/images/FutabaServo.jpg)
 
 **60degに制御する場合**
 
@@ -71,3 +78,48 @@ S3003が認識する周期幅が6 ~ 25msの範囲なので20msくらいの周期
 
 タイマの割り込み周期を0.01msにしたのは1deg動かすために変化させるHighのカウント数を1にするためです。
 
+##サーボモータを動かしてみよう
+
+###角度指定用の関数
+
+    void servo(int angle){
+        angle += 145; //90 + 55
+        ServoTargetValue = angle
+    }
+
+ - **angle += 145**  
+   角度の座標系を0 ~ 180degから中心を0degとした-90 ~ 90degに変更
+
+ - **ServoTargetValue**  
+   タイマ1の方でHigh側のカウント上限に使用するグローバル変数
+
+###初期化関数
+
+    void ServoInitFunc(void){
+        servo(0);
+        ConfigIntTimer1(T1_INT_PRIOR_1 & T1_INT_ON);
+        OpenTimer1(T1_ON & T1_GATE_OFF & T1_PS_1_1 & T1_SYNC_EXT_OFF & T1_SOURCE_INT, 200-1);
+    }
+
+ - **OpenTimer1(T1_ON & T1_GATE_OFF & T1_PS_1_1 & T1_SYNC_EXT_OFF & T1_SOURCE_INT, 200-1)**  
+    4/80MHz x 1 x 200 = 0.01msec
+    タイマの割り込み周期を0.01msecに設定
+
+###タイマ関数
+
+    void _ISR _T1Interrupt(void){
+        IFS0bits.T1IF = 0;
+        TimeCount++;
+
+        if(TimeCount < ServoTargetValue){
+            SERVO = 1;
+        }else if(TimeCount <= 2000){
+            TimeCount = 0;
+        }
+    }
+
+サーボモータの信号端子にPWM信号を出力します。
+
+タイマ資源が余っているとき限定ですがこの方法を使用することですべてIOピンにおいてPWM制御ができますので試してみてください。
+
+以上でタイマを使ったサーボモータの制御についての解説を終わります。

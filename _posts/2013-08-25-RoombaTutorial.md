@@ -27,11 +27,11 @@ ROSを使ってRoombaを動かすために必要そうな情報を収集して�
     rosmake roomba_robot 
     rosmake serial_communication 
 
-PCとRoombaをシリアルケーブルでつないだ後にポートを確認しましょう。
+PCとRoombaをシリアルケーブルでつないだ後にポートを確認すると
 
     dmesg | grep tty
 
-すると以下の様に表示されます。
+以下の様に表示されます。
 
     [35675.368847] usb 1-1.2: FTDI USB Serial Device converter now attached to ttyUSB0
 
@@ -39,11 +39,11 @@ PCとRoombaをシリアルケーブルでつないだ後にポートを確認し
 
     sudo chmod 777 /dev/ttyUSB0
 
-準備が整ったのでノードを起動します。
+準備が整ったのでノードを起動
 
     rosrun roomba_500_series roomba500_light_node
 
-このログが表示されれば成功です。
+以下のログが表示されれば成功です。
 
     [ INFO] [1377530011.590896574]: Roomba for ROS 2.01
     [ INFO] [1377530011.869933041]: Connected to Roomba.
@@ -51,4 +51,6 @@ PCとRoombaをシリアルケーブルでつないだ後にポートを確認し
 geometry_msgs/Twistを発行してRoombaを旋回させます。
 
     rostopic pub -1 cmd_vel geometry_msgs/Twist '[0, 0, 0]' '[0, 0, 0.1]' && rostopic pub -1 cmd_vel geometry_msgs/Twist '[0, 0, 0]' '[0, 0, 0]'
+
+以上でRoombaをコマンドで動かすための解説を終わります。
 
