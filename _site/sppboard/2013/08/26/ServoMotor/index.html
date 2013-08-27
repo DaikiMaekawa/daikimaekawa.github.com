@@ -1,0 +1,393 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>
+      
+        サーボモータの制御方法 - 
+      
+      ゼロから始めるロボットプログラミング入門講座
+    </title>
+    
+    <meta name="author" content="Daiki Maekawa">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    <link href="/assets/themes/hooligan/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/themes/hooligan/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">    
+    <link rel="stylesheet" type="text/css" href="/assets/themes/hooligan/css-social-buttons/css/zocial.stripped.css">
+    <link href="/assets/themes/hooligan/css/pygments.css" rel="stylesheet" type="text/css" media="all">
+    <link href="/assets/themes/hooligan/css/darkstrap.css" rel="stylesheet" type="text/css" media="all">    
+    <link href="/assets/themes/hooligan/css/style.css?body=1" rel="stylesheet" type="text/css" media="all">
+
+    
+    <!-- fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+  </head>
+
+  <body>
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="container">
+          <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>      
+
+
+          <a class="brand" href="/">ゼロから始めるロボットプログラミング入門講座</a>
+
+
+          <div class="nav-collapse">
+            <ul class="nav">
+              
+              
+              
+
+
+  
+    
+      
+    
+  
+    
+      
+    
+  
+    
+      
+    
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/archive.html">Archive</a></li>
+      	
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/tags.html">Tags</a></li>
+      	
+      
+    
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/categories.html">Categories</a></li>
+      	
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/pages.html">Pages</a></li>
+      	
+      
+    
+  
+    
+      
+    
+  
+    
+      
+    
+  
+
+
+
+            </ul>
+            <ul class="nav pull-right social visible-desktop">
+              <li class="divider-vertical"></li>
+              
+                <li>
+                  <a href="https://github.com/DaikiMaekawa" class="zocial github icon" target="_blank">
+                    <span class="hidden-desktop">Github</span>
+                  </a>
+                </li>
+              
+                  
+                                        
+                         
+                                  
+              
+                <li>
+                  <a href="http://feeds.feedburner.com/feedname" class="zocial rss icon" target="_blank">
+                    <span class="hidden-desktop">FeedBurner</span>
+                  </a>
+                </li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="content">
+        
+<div class="page-header">
+  <h1>
+    サーボモータの制御方法 
+    
+      <small>dsPIC入門講座03</small>
+    
+  </h1>
+</div>
+
+<div class="row">
+  <div class="span8">
+    <h2 id='id18'>開発環境</h2>
+
+<pre><code>基盤       : SPPBoard(dsPIC30F3014使用)
+コンパイラ  : C30</code></pre>
+
+<h2 id='id19'>はじめに</h2>
+
+<p>今回はSPPBoardを用いてサーボモータ(S3003)を制御する方法を解説します。</p>
+
+<p>S3003はPWM制御を使用することで簡単に制御することができます。(S3003はRCサーボ)</p>
+
+<p>つまり、dsPIC入門講座02で解説したOutPutCompare(OC)モジュールを使えばよいのです。</p>
+
+<p>しかし、SPPBoardに採用したdsPIC30F3014にはOC端子が二つしかありません。</p>
+
+<p><strong>OC端子</strong></p>
+
+<p><img alt='OC' src='/images/OC_pin.jpg' /></p>
+
+<p>車輪ロボット等を駆動させることを考えると最低二つのモータをそれぞれOC端子に割り当てることになりそうです。</p>
+
+<p>その状態でサーボモータも同時に制御したい場合にはどうすればよいでしょうか?</p>
+
+<p>ここでは、I/Oピンとタイマを組み合わせてPWM信号を生成することで解決する手法について解説します。</p>
+
+<p><strong>使用する端子</strong></p>
+
+<p><img alt='FutabaServo' src='/images/Servo_pin.jpg' /></p>
+
+<h2 id='id20'>サーボモータの仕様書から必要な情報を読み取ろう</h2>
+
+<p><strong>サーボのスペック</strong></p>
+
+<p><img alt='FutabaServo' src='/images/Servo_spec.jpg' /></p>
+
+<p><a href='http://www.es.co.th/schemetic/pdf/et-servo-s3003.pdf' title='S3003'>仕様書を入手</a></p>
+
+<h3 id='id21'>タイマの割り込み周期</h3>
+
+<p>S3003のパルス幅は0.5 ~ 2.3msです。</p>
+
+<p>よって1.8msの間で0deg ~ 180deg動くことがわかります。</p>
+
+<pre><code>(2.3 - 0.5) / 180 = 0.01ms で1deg動く</code></pre>
+
+<p>きりが良いので、0.01msをタイマの割り込み周期にします。</p>
+
+<p>(注) 180deg以上回転するので実際のパルス幅で測定すると0.55 ~ 2.35ms付近がちょうど0deg ~ 180degの範囲になっていました。</p>
+
+<h3 id='id22'>角度制御用の信号</h3>
+
+<p>認識する周期幅が6 ~ 25msの範囲なので20msくらいの周期幅でHigh, Lowを切り替えます。</p>
+
+<p>タイマの割り込み周期が0.01msなので2000カウントで20msとなります。</p>
+
+<p><img alt='FutabaServo' src='/images/FutabaServo.jpg' /></p>
+
+<p><strong>60degに制御する場合</strong></p>
+
+<pre><code>0.01 x 60 = 0.6ms
+0.55msで0degなので
+0.6 + 0.55 = 1.15ms</code></pre>
+
+<p>タイマは0.01ms毎の割り込みなので</p>
+
+<pre><code>High: 115カウント
+Low : 1885カウント</code></pre>
+
+<p>とする周期をサーボモータに送ることで60degに制御することができます。</p>
+
+<p><strong>0degに制御する場合</strong></p>
+
+<pre><code>High: 55カウント
+Low : 1945カウント</code></pre>
+
+<p><strong>180degに制御する場合</strong></p>
+
+<pre><code>High: 255カウント
+Low : 1745カウント</code></pre>
+
+<p>タイマの割り込み周期を0.01msにしたのは1deg動かすために変化させるHighのカウント数を1にするためです。</p>
+
+<h2 id='id23'>サーボモータを動かしてみよう</h2>
+
+<h3 id='id24'>角度指定用の関数</h3>
+
+<pre><code>void servo(int angle){
+    angle += 145; //90 + 55
+    ServoTargetValue = angle
+}</code></pre>
+
+<ul>
+<li>
+<p><strong>angle += 145</strong></p>
+
+<p>角度の座標系を0 ~ 180degから中心を0degとした-90 ~ 90degに変更</p>
+</li>
+
+<li>
+<p><strong>ServoTargetValue</strong></p>
+
+<p>タイマ1の方でHigh側のカウント上限に使用するグローバル変数</p>
+</li>
+</ul>
+
+<h3 id='id25'>初期化関数</h3>
+
+<pre><code>void ServoInitFunc(void){
+    servo(0);
+    ConfigIntTimer1(T1_INT_PRIOR_1 &amp; T1_INT_ON);
+    OpenTimer1(T1_ON &amp; T1_GATE_OFF &amp; T1_PS_1_1 &amp; T1_SYNC_EXT_OFF &amp; T1_SOURCE_INT, 200-1);
+}</code></pre>
+
+<ul>
+<li>
+<p><strong>OpenTimer1(&#8230;)</strong></p>
+
+<p>4/80MHz x 1 x 200 = 0.01msec</p>
+
+<p>タイマの割り込み周期を0.01msecに設定</p>
+</li>
+</ul>
+
+<h3 id='id26'>タイマ関数</h3>
+
+<pre><code>void _ISR _T1Interrupt(void){
+    IFS0bits.T1IF = 0;
+    TimeCount++;
+
+    if(TimeCount &lt; ServoTargetValue){
+        SERVO = 1;
+    }else if(TimeCount &lt;= 2000){
+        TimeCount = 0;
+    }
+}</code></pre>
+
+<p>サーボモータの信号端子にPWM信号を出力します。</p>
+
+<p>タイマ資源が余っているとき限定ですがこの方法を使用することでどのI/OピンからでもPWM信号を出力できますので試してみてください。</p>
+
+<p>以上でタイマを使ったサーボモータの制御についての解説を終わります。</p>
+    <hr>
+    <div class="pagination btn-group">
+      
+        <a class="btn prev" href="/ros/2013/08/25/RoombaTutorial" title="RoombaのROSドライバをソースからビルドして使ってみる">&larr; Previous</a>
+      
+        <a class="btn" href="/archive.html">Archive</a>
+      
+        <a class="btn next disabled">Next &rarr;</a>
+      
+    </div>
+    <hr>
+    
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_developer = 1;
+    var disqus_shortname = 'jekyllbootstrap'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+  </div>
+  
+  <div class="span4">
+    <section>
+      <h4>Published</h4>
+      <div class="date"><span>26 August 2013</span></div>
+    </section>
+    
+      <section>
+        <h4>Category</h4>
+        <span class="category">
+          SPPBoard
+        </span>
+      </section>
+         
+    
+      <section>
+        <h4>Tags</h4>
+        <ul class="tag_box">
+          
+          
+
+
+  
+     
+    	<li><a href="/tags.html#dsPIC-ref">dsPIC <span>4</span></a></li>
+    
+  
+
+
+
+        </ul>
+      </section>
+             
+  </div>
+</div>
+
+
+      </div>
+
+      <footer>
+        <p>&copy; 2013 Daiki Maekawa
+          with help from <a href="http://jekyllbootstrap.com" target="_blank" title="The Definitive Jekyll Blogging Framework">Jekyll Bootstrap</a>
+          and <a href="http://github.com/dhulihan/hooligan" target="_blank">The Hooligan Theme</a>
+        </p>
+      </footer>
+    </div> <!-- /container -->
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="/assets/themes/hooligan/js/jquery.min.js"><\/script>')</script>
+    <script src="/assets/themes/hooligan/bootstrap/js/bootstrap.min.js"></script>
+
+    
+  </body>
+</html>
+

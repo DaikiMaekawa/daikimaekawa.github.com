@@ -1,0 +1,841 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+ 
+ <title>ゼロから始めるロボットプログラミング入門講座</title>
+ <link href="http://DaikiMaekawa.github.io/" rel="self"/>
+ <link href="http://DaikiMaekawa.github.io"/>
+ <updated>2013-08-27T16:04:28+09:00</updated>
+ <id>http://DaikiMaekawa.github.io</id>
+ <author>
+   <name>Daiki Maekawa</name>
+   <email>method_aspect_card@yahoo.co.jp</email>
+ </author>
+
+ 
+ <entry>
+   <title>サーボモータの制御方法</title>
+   <link href="http://DaikiMaekawa.github.io/sppboard/2013/08/26/ServoMotor"/>
+   <updated>2013-08-26T00:00:00+09:00</updated>
+   <id>http://DaikiMaekawa.github.io/sppboard/2013/08/26/ServoMotor</id>
+   <content type="html">&lt;h2 id='id18'&gt;開発環境&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;基盤       : SPPBoard(dsPIC30F3014使用)
+コンパイラ  : C30&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id='id19'&gt;はじめに&lt;/h2&gt;
+
+&lt;p&gt;今回はSPPBoardを用いてサーボモータ(S3003)を制御する方法を解説します。&lt;/p&gt;
+
+&lt;p&gt;S3003はPWM制御を使用することで簡単に制御することができます。(S3003はRCサーボ)&lt;/p&gt;
+
+&lt;p&gt;つまり、dsPIC入門講座02で解説したOutPutCompare(OC)モジュールを使えばよいのです。&lt;/p&gt;
+
+&lt;p&gt;しかし、SPPBoardに採用したdsPIC30F3014にはOC端子が二つしかありません。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;OC端子&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='OC' src='/images/OC_pin.jpg' /&gt;&lt;/p&gt;
+
+&lt;p&gt;車輪ロボット等を駆動させることを考えると最低二つのモータをそれぞれOC端子に割り当てることになりそうです。&lt;/p&gt;
+
+&lt;p&gt;その状態でサーボモータも同時に制御したい場合にはどうすればよいでしょうか?&lt;/p&gt;
+
+&lt;p&gt;ここでは、I/Oピンとタイマを組み合わせてPWM信号を生成することで解決する手法について解説します。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;使用する端子&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='FutabaServo' src='/images/Servo_pin.jpg' /&gt;&lt;/p&gt;
+
+&lt;h2 id='id20'&gt;サーボモータの仕様書から必要な情報を読み取ろう&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;サーボのスペック&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='FutabaServo' src='/images/Servo_spec.jpg' /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href='http://www.es.co.th/schemetic/pdf/et-servo-s3003.pdf' title='S3003'&gt;仕様書を入手&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id='id21'&gt;タイマの割り込み周期&lt;/h3&gt;
+
+&lt;p&gt;S3003のパルス幅は0.5 ~ 2.3msです。&lt;/p&gt;
+
+&lt;p&gt;よって1.8msの間で0deg ~ 180deg動くことがわかります。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;(2.3 - 0.5) / 180 = 0.01ms で1deg動く&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;きりが良いので、0.01msをタイマの割り込み周期にします。&lt;/p&gt;
+
+&lt;p&gt;(注) 180deg以上回転するので実際のパルス幅で測定すると0.55 ~ 2.35ms付近がちょうど0deg ~ 180degの範囲になっていました。&lt;/p&gt;
+
+&lt;h3 id='id22'&gt;角度制御用の信号&lt;/h3&gt;
+
+&lt;p&gt;認識する周期幅が6 ~ 25msの範囲なので20msくらいの周期幅でHigh, Lowを切り替えます。&lt;/p&gt;
+
+&lt;p&gt;タイマの割り込み周期が0.01msなので2000カウントで20msとなります。&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='FutabaServo' src='/images/FutabaServo.jpg' /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;60degに制御する場合&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;0.01 x 60 = 0.6ms
+0.55msで0degなので
+0.6 + 0.55 = 1.15ms&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;タイマは0.01ms毎の割り込みなので&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;High: 115カウント
+Low : 1885カウント&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;とする周期をサーボモータに送ることで60degに制御することができます。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;0degに制御する場合&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;High: 55カウント
+Low : 1945カウント&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;180degに制御する場合&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;High: 255カウント
+Low : 1745カウント&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;タイマの割り込み周期を0.01msにしたのは1deg動かすために変化させるHighのカウント数を1にするためです。&lt;/p&gt;
+
+&lt;h2 id='id23'&gt;サーボモータを動かしてみよう&lt;/h2&gt;
+
+&lt;h3 id='id24'&gt;角度指定用の関数&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;void servo(int angle){
+    angle += 145; //90 + 55
+    ServoTargetValue = angle
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;angle += 145&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;角度の座標系を0 ~ 180degから中心を0degとした-90 ~ 90degに変更&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;ServoTargetValue&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;タイマ1の方でHigh側のカウント上限に使用するグローバル変数&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id='id25'&gt;初期化関数&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;void ServoInitFunc(void){
+    servo(0);
+    ConfigIntTimer1(T1_INT_PRIOR_1 &amp;amp; T1_INT_ON);
+    OpenTimer1(T1_ON &amp;amp; T1_GATE_OFF &amp;amp; T1_PS_1_1 &amp;amp; T1_SYNC_EXT_OFF &amp;amp; T1_SOURCE_INT, 200-1);
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;OpenTimer1(&amp;#8230;)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;4/80MHz x 1 x 200 = 0.01msec&lt;/p&gt;
+
+&lt;p&gt;タイマの割り込み周期を0.01msecに設定&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id='id26'&gt;タイマ関数&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;void _ISR _T1Interrupt(void){
+    IFS0bits.T1IF = 0;
+    TimeCount++;
+
+    if(TimeCount &amp;lt; ServoTargetValue){
+        SERVO = 1;
+    }else if(TimeCount &amp;lt;= 2000){
+        TimeCount = 0;
+    }
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;サーボモータの信号端子にPWM信号を出力します。&lt;/p&gt;
+
+&lt;p&gt;タイマ資源が余っているとき限定ですがこの方法を使用することでどのI/OピンからでもPWM信号を出力できますので試してみてください。&lt;/p&gt;
+
+&lt;p&gt;以上でタイマを使ったサーボモータの制御についての解説を終わります。&lt;/p&gt;</content>
+ </entry>
+ 
+ <entry>
+   <title>RoombaのROSドライバをソースからビルドして使ってみる</title>
+   <link href="http://DaikiMaekawa.github.io/ros/2013/08/25/RoombaTutorial"/>
+   <updated>2013-08-25T00:00:00+09:00</updated>
+   <id>http://DaikiMaekawa.github.io/ros/2013/08/25/RoombaTutorial</id>
+   <content type="html">&lt;h2 id='id17'&gt;開発環境&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;OS     : Ubuntu12.04
+ROS ver: Groovy&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id='roombaros'&gt;RoombaをROSのコマンドで動かす&lt;/h2&gt;
+
+&lt;p&gt;ROSを使ってRoombaを動かすために必要そうな情報を収集しているとroomba_500_seriesという便利そうなパッケージを発見しました。&lt;/p&gt;
+
+&lt;p&gt;しかし、サポートされているバージョンがfuerteまでなのでgroovyはソースからビルドするしかなさそうです。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mkdir ~/ros_ws
+cd ~/ros_ws
+git clone https://github.com/Arkapravo/roomba_500_ROS_drivers
+export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:~/ros_ws &amp;gt;&amp;gt; ~/.bashrc
+source ~/.bashrc&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;(注) すでにワークスペースがある場合はそこにソースを置いてください。&lt;/p&gt;
+
+&lt;p&gt;当然、catkinへの対応はまだなのでrosmakeでビルドしましょう。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;rosmake roomba_robot 
+rosmake serial_communication &lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;PCとRoombaをシリアルケーブルでつないだ後にポートを確認すると&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;dmesg | grep tty&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;以下の様に表示されます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[35675.368847] usb 1-1.2: FTDI USB Serial Device converter now attached to ttyUSB0&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;/dev/ttyUSB0へのアクセス権を取得します。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo chmod 777 /dev/ttyUSB0&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;準備が整ったのでノードを起動&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;rosrun roomba_500_series roomba500_light_node&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;以下のログが表示されれば成功です。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[ INFO] [1377530011.590896574]: Roomba for ROS 2.01
+[ INFO] [1377530011.869933041]: Connected to Roomba.&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;geometry_msgs/Twistを発行してRoombaを旋回させます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;rostopic pub -1 cmd_vel geometry_msgs/Twist &amp;#39;[0, 0, 0]&amp;#39; &amp;#39;[0, 0, 0.1]&amp;#39; &amp;amp;&amp;amp; rostopic pub -1 cmd_vel geometry_msgs/Twist &amp;#39;[0, 0, 0]&amp;#39; &amp;#39;[0, 0, 0]&amp;#39;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;以上でRoombaをコマンドで動かすための解説を終わります。&lt;/p&gt;</content>
+ </entry>
+ 
+ <entry>
+   <title>DCモータのPWM制御</title>
+   <link href="http://DaikiMaekawa.github.io/sppboard/2013/08/19/DCMotor"/>
+   <updated>2013-08-19T00:00:00+09:00</updated>
+   <id>http://DaikiMaekawa.github.io/sppboard/2013/08/19/DCMotor</id>
+   <content type="html">&lt;h2 id='id4'&gt;開発環境&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;基盤       : SPPBoard(dsPIC30F3014使用)
+コンパイラ  : C30&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id='id5'&gt;はじめに&lt;/h2&gt;
+
+&lt;p&gt;PWMの入門としてDCモータを制御するためのサンプルプログラムをSPPBoardで作成しました。&lt;/p&gt;
+
+&lt;p&gt;ロボット製作ではPWMを扱う機会がとても多いと思います。&lt;/p&gt;
+
+&lt;p&gt;ここでは、ロボット製作の初心者を対象にPWMの概念から丁寧に解説していきたいと思います。&lt;/p&gt;
+
+&lt;h2 id='id6'&gt;サンプルプログラムの概要説明&lt;/h2&gt;
+
+&lt;p&gt;OutPutCompareモジュールを使用し、モータの速度制御を行うプログラムです。&lt;/p&gt;
+
+&lt;p&gt;速度変化はデューティ比を100%, 75%, 50% ,25%, 0%と順番に変化させる。&lt;/p&gt;
+
+&lt;p&gt;その際に一定周期で正回転、逆回転を切り替えます。&lt;/p&gt;
+
+&lt;h2 id='outputcompare'&gt;OutPutCompareモジュールとは&lt;/h2&gt;
+
+&lt;h3 id='id7'&gt;概念&lt;/h3&gt;
+
+&lt;p&gt;OutPutCompareモジュールを簡単に言い表すなら高速でON/OFFを繰り返すことができる機能です。&lt;/p&gt;
+
+&lt;p&gt;一定時間内におけるON/OFFの比率(デューティ比)を調整することにより速度を制御することができます。&lt;/p&gt;
+
+&lt;h3 id='id8'&gt;動作&lt;/h3&gt;
+
+&lt;p&gt;ON/OFFの周期はタイマに依存します。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;タイマによるカウントを100msecに設定し、デューティ比が50%の場合&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='Signal' src='/images/PWM01.jpg' /&gt;&lt;/p&gt;
+
+&lt;p&gt;カウント周期はそのままでデューティ比だけを変更した場合を考えてみると以下の用になります。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;デューティ比25%&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='Signal' src='/images/PWM02.jpg' /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;デューティ比100%&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='Signal' src='/images/PWM03.jpg' /&gt;&lt;/p&gt;
+
+&lt;p&gt;このようにデューティ比を変化させることで速度を制御することができます。&lt;/p&gt;
+
+&lt;h2 id='id9'&gt;制御に必要な回路の知識&lt;/h2&gt;
+
+&lt;h3 id='id10'&gt;ロジック回路の使用&lt;/h3&gt;
+
+&lt;p&gt;&lt;img alt='Signal' src='/images/NAND01.jpg' /&gt;&lt;/p&gt;
+
+&lt;p&gt;SPPBoardではOutPutCompareモジュールの出力に74HCT132Eを組み合わせています。&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='Signal' src='/images/NAND02.jpg' /&gt;&lt;/p&gt;
+
+&lt;p&gt;1Aと2AがPICのOC2(D1)ピンを共有している点に注目してください。&lt;/p&gt;
+
+&lt;p&gt;OC2とはOutPutCompare2の略です。&lt;/p&gt;
+
+&lt;p&gt;つまり、OC2からPWM出力を行っている際に74HCT132Eの1Aと2Aが同時に 1 -&amp;gt; 0を一定周期で繰り返すということがわかります。&lt;/p&gt;
+
+&lt;h3 id='id11'&gt;モータドライバの使用&lt;/h3&gt;
+
+&lt;p&gt;次はモータドライバについて解説します。&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='MotorDriver' src='/images/MotorDriver01.jpg' /&gt;&lt;/p&gt;
+
+&lt;p&gt;SPPBoardにはTA7291Pを使っています。&lt;/p&gt;
+
+&lt;p&gt;念のためモータドライバの原理についても解説しましょう。&lt;/p&gt;
+
+&lt;h3 id='h'&gt;Hブリッジ回路&lt;/h3&gt;
+
+&lt;p&gt;Mはモータを表しています。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;ストップ&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='MotorDriver' src='/images/MotorDriver02.png' /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;モータが回転&lt;/strong&gt; &lt;img alt='MotorDriver' src='/images/MotorDriver03.png' /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;先ほどと逆回転&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='MotorDriver' src='/images/MotorDriver04.png' /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;ブレーキ&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='MotorDriver' src='/images/MotorDriver05.png' /&gt;&lt;/p&gt;
+
+&lt;p&gt;(注)すべてのモータドライバが上記の仕様とは限りません。&lt;/p&gt;
+
+&lt;p&gt;種類によってはブレーキモードが存在しないもの等もあります。&lt;/p&gt;
+
+&lt;p&gt;今回使用するTA7291Pはどうなっているのか仕様書から確認してみましょう。&lt;/p&gt;
+
+&lt;h3 id='id12'&gt;モータドライバの仕様書から読み取る&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;端子の確認&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='pin' src='/images/MotorDriver_spec01.jpg' /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;ファンクションの確認&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='func' src='/images/MotorDriver_spec02.jpg' /&gt;&lt;/p&gt;
+
+&lt;p&gt;ファンクションを見ればモータドライバにどのような入力が必要なのかが一目でわかります。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;ブレーキモード
+ - IN1 5V
+ - IN2 5V
+
+正回転
+ - IN1 5V
+ - IN2 0V
+
+逆回転
+ - IN1 0V
+ - IN2 5V&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id='id13'&gt;モータドライバへの接続&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;モータドライバとロジック回路の接続&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='connect' src='/images/MotorDriver_spec03.jpg' /&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;TA7291P          74HCT132E
+ IN1     &amp;lt;--&amp;gt;     2Y
+ IN2     &amp;lt;--&amp;gt;     1Y&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;モータドライバとロジック回路の関係性&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;(注) ()はそれ以外の組み合わせが存在する事を示しています。&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='rel' src='/images/MotorDriver_spec04.jpg' /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;dsPICとロジック回路の関係性&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;前述したとおり、OutPutCompare2を使用した際、1Aと2Aが1 -&amp;gt; 0を繰り返します。&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='rel2' src='/images/MotorDriver_spec05.jpg' /&gt;&lt;/p&gt;
+
+&lt;p&gt;このことからモータの回転を制御するために調節すればいいのは1Bと2Bだと分かります。&lt;/p&gt;
+
+&lt;p&gt;以上で回路に関する説明は終わりです。&lt;/p&gt;
+
+&lt;h2 id='id14'&gt;サンプルプログラム&lt;/h2&gt;
+
+&lt;p&gt;まずはピンの別名を定義&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#define PWM_1A_AND_2A LATDbits.LATD1
+#define PWM_1B LATFbits.LATF0
+#define PWM_2B LATFbits.LATF1
+
+enum MotionType{NORMAL, REVERSE};&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;今回はOutPutCompare2を使用しますのでPWM_1A_AND_2Aを直接変更することはありません。&lt;/p&gt;
+
+&lt;p&gt;コンフィギュレーション設定はいつもどおりなので省略&lt;/p&gt;
+
+&lt;h3 id='main'&gt;main文の中&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;short MotionType
+int i;
+float Duty_set[] = {1.0, 0.75, 0.5, 0.25, 0.0};
+
+TRISD = 0x0000;
+TRISF = 0x0000;
+
+OpenOC2(OC_IDLE_CON &amp;amp; OC_TIMER2_SRC &amp;amp; OC_PWM_FAULT_PIN_DISABLE, 0, 0);
+OpenTimer2(T2_ON &amp;amp; T2_GATE_OFF &amp;amp; T2_PS_1_64 &amp;amp; T2_SOURCE_INT, 3125-1);
+
+MotionType = NORMAL;
+PWM_1B = 1;
+PWM_2B = 0;
+
+while(1){
+    for(i=0; i&amp;lt;5; i++){
+        SetDCOC2PWM(3125*Duty_set[i]);
+        wait_msec(1000);
+    }
+
+    if(MotionType == NORMAL){
+        ///逆回転にセット
+        PWM_1B = 0;
+        PWM_2B = 1;
+        MotionType = REVERSE;
+    }else{
+        ///正回転にセット
+        PWM_1B = 1;
+        PWM_2B = 0;
+        MotionType = NORMAL;
+    }
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;OpenOC2(&amp;#8230;)&lt;/strong&gt;&lt;br /&gt;OC_IDLE_CON : アイドルループ内動作継続&lt;br /&gt;OC_TIMER2_SRC : タイマ2を選択&lt;br /&gt;OC_PWM_FAULT_PIN_DISABLE : 出力モードをPWMに設定&lt;br /&gt;第2引数 : OCxRSレジスタに設定する値&lt;br /&gt;第3引数 : OCxRレジスタに設定する値&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id='openoc'&gt;OpenOC関数の詳しい解説&lt;/h3&gt;
+
+&lt;p&gt;OutPutCompareモジュールはタイマ2かタイマ3のカウンタとOCxRレジスタかOCxRSレジスタの値を常時比較していて、一致したとき、何らかの出力をOCx端子にするというものです。&lt;/p&gt;
+
+&lt;p&gt;OCx出力とはOutPutCompare出力の略で今回ではdsPICのOC2端子からの出力されるものを指します。&lt;/p&gt;
+
+&lt;p&gt;1) 今回はOCxRレジスタ、OCxRSレジスタともに0に設定しました。&lt;/p&gt;
+
+&lt;p&gt;2) そしてカウンタはタイマ2を使用します。&lt;/p&gt;
+
+&lt;p&gt;3) PWMモードを指定しているので、OCxRレジスタが比較対象(今回OCxRSレジスタの値は意味なし)となり、一致によりOCxレジスタはLowに制御されます。 逆にタイマが0クリアされるときは、OCxレジスタがHighに制御されます。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;OpenTimer2(&amp;#8230;)&lt;/strong&gt;&lt;br /&gt;4/80MHzx64x3125=10msec&lt;/p&gt;
+
+&lt;p&gt;OC2出力周期(ON/OFF周期)が0.01秒に決定&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id='id15'&gt;モータの回転方向とブレーキ制御&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;PWM_1B = 1
+PWM_2B = 0&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;この時モータは正回転する&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='Motor_cw' src='/images/Motor_cw.jpg' /&gt;&lt;/p&gt;
+
+&lt;p&gt;一応ファンクションを確認&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='Motor_cw_func' src='/images/Motor_cw_func.jpg' /&gt;&lt;/p&gt;
+
+&lt;p&gt;ではOC2出力が0の時モータは、ちゃんと停止しているのでしょうか。&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='Motor_stop' src='/images/Motor_stop.jpg' /&gt;&lt;/p&gt;
+
+&lt;p&gt;モータがブレーキモードになっていることがわかると思います。&lt;/p&gt;
+
+&lt;p&gt;一応ファンクションを確認&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='Motor_stop_func' src='/images/Motor_stop_func.jpg' /&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;PWM_1B = 0
+PWM_2B = 1&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;この時モータは逆回転する。&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='Motor_ccw' src='/images/Motor_ccw.jpg' /&gt;&lt;/p&gt;
+
+&lt;p&gt;一応ファンクションを確認&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='Motor_ccw_func' src='/images/Motor_ccw_func.jpg' /&gt;&lt;/p&gt;
+
+&lt;h3 id='id16'&gt;モータの速度制御&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;SetDCOC2PWM(3125 * Duty_set[i])&lt;/strong&gt;&lt;br /&gt;デューティ比を100% ~ 0%まで段階的に変更する&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;これによりモータがブレーキモードになる比率を変更でき、 結果として速度を変化させることができます。&lt;/p&gt;
+
+&lt;p&gt;初心者向けの解説なので冗長な説明が多かったと思いますが&lt;/p&gt;
+
+&lt;p&gt;以上でDCモータの制御に関する解説を終わります。&lt;/p&gt;</content>
+ </entry>
+ 
+ <entry>
+   <title>LCDの制御方法</title>
+   <link href="http://DaikiMaekawa.github.io/sppboard/2013/08/18/LCD"/>
+   <updated>2013-08-18T00:00:00+09:00</updated>
+   <id>http://DaikiMaekawa.github.io/sppboard/2013/08/18/LCD</id>
+   <content type="html">&lt;h2 id='id2'&gt;開発環境&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;基盤       : SPPBoard(dsPIC30F3014使用)
+コンパイラ  : C30&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id='id3'&gt;はじめに&lt;/h2&gt;
+
+&lt;p&gt;組み込みプログラムの入門として&lt;/p&gt;
+
+&lt;p&gt;1 ~ 9までの数字を0.1秒毎にカウントアップしてLCDの1マス目に表示するプログラムを作成しました。&lt;/p&gt;
+
+&lt;p&gt;LCDは&lt;a href='http://akizukidenshi.com/catalog/g/gP-01797/' title='SD1602HUOB'&gt;SD1602HUOB&lt;/a&gt;を使用します。&lt;/p&gt;
+
+&lt;p&gt;それでは、仕様書の読み方から解説していきたいと思います。&lt;/p&gt;
+
+&lt;h2 id='lcd'&gt;LCDの仕様書から必要な情報を読み取ろう&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;基礎知識&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;R/S端子 
+ - Low : コマンドと認識
+ - High: 文字データと認識
+
+R/W端子
+ - Low : Writeモード
+ - High: Readモード
+
+E端子
+ - Low -&amp;gt; Highに変化で命令を回収&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;今回はR/WはGNDに落としているため常にWriteモードです。&lt;/p&gt;
+
+&lt;p&gt;E端子は意図的な命令であることと信号を送るタイミングを知らせるために使います。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;用意されたコマンド&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Clear Display       0000 0001
+Cursor At Home      0000 0010
+Entry Mode Set      0000 0100
+Display ON/OFF      0000 1000
+Cursor/DisplayShift 0001 0000
+Function Set        0010 0000
+CGRAW AddressSet    0100 0000
+DDRAW AddressSet    1000 0000&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;どの位置に1を立てるかでどのコマンドかが判別されます。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;LCDの初期化手順&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;電源ON
+15ms以上待つ
+8ビットモードに設定
+4.1ms以上待つ
+8ビットモードに設定
+100us以上待つ
+8ビットモードに設定
+4ビットモードに設定
+ファンクション設定
+ディスプレイOFF
+ディスプレイON
+エントリーモード&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id='lcd'&gt;LCDの制御関数を作ろう&lt;/h2&gt;
+
+&lt;p&gt;まず、ピンの名前をわかりやすく定義しましょう。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#define LCD_RS LATBbits.LATB5
+#define LCD_E  LATBbits.LATB4
+#define LCD_D4 LATBbits.LATB9
+#define LCD_D5 LATBbits.LATB10
+#define LCD_D6 LATBbits.LATB11
+#define LCD_D7 LATBbits.LATB12&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;8ビットモード用指令関数&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void lcd_out8(unsigned char dat){
+    LCD_RS = 0;
+    LCD_E  = 1;
+    LCD_D4 = (dat &amp;amp; 0x01);
+    dat = dat &amp;gt;&amp;gt; 1;
+    LCD_D5 = (dat &amp;amp; 0x01);
+    dat = dat &amp;gt;&amp;gt; 1;
+    LCD_D6 = (dat &amp;amp; 0x01);
+    dat = dat &amp;gt;&amp;gt; 1;
+    LCD_D7 = (dat &amp;amp; 0x01);
+
+    wait_usec(50);
+    LCD_E = 0;
+    wait_usec(50);
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;LCD_RS = 0&lt;/strong&gt;&lt;br /&gt;LCDにコマンドを送信&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;LCD_E = 1&lt;/strong&gt;&lt;br /&gt;コマンドを回収(450nsecの時間が必要)&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;LCD_D[4-7] = (dat &amp;amp; 0x01)&lt;/strong&gt;&lt;br /&gt;LCDの上位4本に指令を送信&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;wait_usec(50)&lt;/strong&gt;&lt;br /&gt;上記の命令を回収&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;LCD_E = 0&lt;/strong&gt;&lt;br /&gt;E端子をLowへ&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;上位ピンに一つずつ送る理由&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt='SPPBoard' src='/images/SPPBoard.BMP' /&gt;&lt;/p&gt;
+
+&lt;p&gt;LCDの上位4ピンは9, 10, 11, 12に接続されています。&lt;/p&gt;
+
+&lt;p&gt;char型は8ビットなのでまとめてLATBで出力に変更できないからです。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;4ビットモード用指令関数&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void lcd_out4(int rs, unsigned char dat){
+    unsigned char bk = dat;
+
+    LCD_RS = rs;
+    LCD_E  = 1;
+    
+    bk = bk &amp;gt;&amp;gt; 4;
+    LCD_D4 = (bk &amp;amp; 0x01);
+    bk = bk &amp;gt;&amp;gt; 1;
+    LCD_D5 = (bk &amp;amp; 0x01);
+    bk = bk &amp;gt;&amp;gt; 1;
+    LCD_D6 = (bk &amp;amp; 0x01);
+    bk = bk &amp;gt;&amp;gt; 1;
+    LCD_D7 = (bk &amp;amp; 0x01);
+
+    wait_usec(50);
+    LCD_E = 0;
+    wait_usec(50);
+
+    LCD_E = 1;
+
+    LCD_D4 = (dat &amp;amp; 0x01);
+    dat = dat &amp;gt;&amp;gt; 1;
+    LCD_D5 = (dat &amp;amp; 0x01);
+    dat = dat &amp;gt;&amp;gt; 1;
+    LCD_D6 = (dat &amp;amp; 0x01);
+    dat = dat &amp;gt;&amp;gt; 1;
+    LCD_D7 = (dat &amp;amp; 0x01);
+
+    wait_usec(50);
+    LCD_E = 0;
+    wait_usec(50);
+    LCD_RS = 0;
+
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;引数rsが0の時コマンド、1の時文字データとして扱います。&lt;/p&gt;
+
+&lt;p&gt;LCDへは上位4ビット、下位4ビットの順に送信します。&lt;/p&gt;
+
+&lt;p&gt;例として引数datに0010 1000が渡されたとします。&lt;/p&gt;
+
+&lt;p&gt;順番だけ見ればLCDは0010 0001と認識しそうですがLCD_D7が12ビット目なのを思い出すと&lt;/p&gt;
+
+&lt;p&gt;それぞれ反転して0010 1000となることがわかるでしょう。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;LCD初期化関数&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void lcd_format(void){
+    
+    wait_msec(20);
+    lcd_out8(0x23);
+    wait_msec(10);
+    lcd_out8(0x23);
+    lcd_out8(0x22);
+    lcd_out4(0, 0x28);
+    lcd_out4(0, 0x0E);
+    lcd_out4(0, 0x06);
+    lcd_out4(0, 0x02);
+
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;仕様書よりも長めにwaitを入れています。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;lcd_out8(0x23)&lt;/strong&gt;&lt;br /&gt;Function Set コマンド&lt;br /&gt;0010 0011 -&amp;gt; (認識)0011 0000&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;lcd_out8(0x22)&lt;/strong&gt;&lt;br /&gt;Function Set コマンド&lt;br /&gt;0010 0010 -&amp;gt; (認識)0010 0000&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;lcd_out4(0, 0x28)&lt;/strong&gt;&lt;br /&gt;Function Set コマンド&lt;br /&gt;0010 1000&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;lcd_out4(0, 0x0E)&lt;/strong&gt;&lt;br /&gt;Display ON/OFF コマンド&lt;br /&gt;0000 1110&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;lcd_out4(0, 0x06)&lt;/strong&gt;&lt;br /&gt;Entry ModeSet コマンド&lt;br /&gt;0000 0110&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;lcd_out4(0, 0x02)&lt;/strong&gt;&lt;br /&gt;Cursor At Home コマンド&lt;br /&gt;0000 0010&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;1文字表示関数&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void lcd_data(unsigned char asci){
+    lcd_out4(1, asci);
+    wait_usec(50);
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;文字列表示関数&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void lcd_puts(unsigned char *str){
+    while(*str != 0x00){
+        lcd_out4(1, *str);
+        str++;
+    }
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;数字表示関数&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void lcd_convert(unsigned int number){
+    lcd_data(&amp;#39;0&amp;#39; + number);
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;画面消去関数&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void lcd_clear(void){
+    lcd_out4(0, 0x01);
+    wait_usec(1650);
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id='lcd'&gt;LCD制御関数を使ってみよう&lt;/h2&gt;
+
+&lt;p&gt;まずはコンフィギュレーション設定をしましょう。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;_FOSC(CSW_FSCM_OFF &amp;amp; XT_PLL8);
+_FWDT(WDT_OFF);
+_FBORPOR(PBOR_ON &amp;amp; BORV_20 &amp;amp; PWRT_64 &amp;amp; MCLR_EN);
+_FGS(CODE_PROT_OFF);&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;_FOSC(CSW_FSCM_OFF &amp;amp; XT_PLL8)&lt;/strong&gt;&lt;br /&gt;クロック停止の際の処理を監視せず、内部の別クロック源への切り替えもしないので&lt;br /&gt;CSW(クロック切り替え)とFSCM(クロックのエラー検出)をOFFに設定&lt;br /&gt;8x10MHz(外部発振器) = 80MHz(クロック周波数)&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;_FWDT(WDT_OFF)&lt;/strong&gt;&lt;br /&gt;特にシステムの監視を行わないためウォッチドックタイマを無効&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;_FBORPOR(PBOR_ON &amp;amp; BORV_20 &amp;amp; PWRT_64 &amp;amp; MCLR_EN)&lt;/strong&gt;&lt;br /&gt;電源ON直後に動作をリセット&lt;br /&gt;電源OFF直後に動作停止&lt;br /&gt;電源OFFを検出する電圧 -&amp;gt; 2.0V&lt;br /&gt;電源ON直後のリセットパルス幅 -&amp;gt; 64msec&lt;br /&gt;MCLRピンを有効&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;_FGS(CODE_PROT_OFF)&lt;/strong&gt;&lt;br /&gt;コードプロテクト -&amp;gt; 読み出し、書き込みともにOFF&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;main文の中&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;unsigned char msgA[] = &amp;quot;start&amp;quot;;
+LATB = 0x0;
+TRISB = 0x00;
+
+lcd_format();
+
+lcd_puts(msgA);
+wait_msec(1000);
+
+ConfigIntTimer1(T1_INT_PRIOR_3 &amp;amp; T1_INT_ON);
+OpenTimer1(T1_ON &amp;amp; T1_GATE_OFF &amp;amp; T1_PS_1_64 &amp;amp; 
+           T1_SYNC_EXT_OFF &amp;amp; T1_SOURCE_INT, 31250-1);
+
+while(1);&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;ConfigIntTimer1(T1_INT_PRIOR_3 &amp;amp; T1_INT_ON)&lt;/strong&gt;&lt;br /&gt;優先度3 &amp;amp; 割り込み許可&lt;/p&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;OpenTimer1(&amp;#8230;)&lt;/strong&gt;&lt;br /&gt;タイマ周期=(4/クロック周波数)x(プリスケーラ分周比)x(PR1設定-1) 100msec = 4/80MHz x 64 x 31250&lt;/p&gt;
+
+&lt;p&gt;T1_ON : タイマ1を有効&lt;br /&gt;T1_GATE_OFF : ゲートタイマモードOFF(外部信号の時間幅の計測をしない)&lt;br /&gt;T1_PS_1_64 : プリスケーラ分周比を64に設定&lt;br /&gt;T1_SYNC_EXT_OFF : タイマ非同期&lt;br /&gt;T1_SOURCE_INT : 内部クロックを使用&lt;br /&gt;31250-1 : PR1設定&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;タイマ1の定義&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void _ISR _T1Interrupt(void){
+    static unsigned int TimeCount1 = 0;
+    IFS0bits.T1IF = 0;
+
+    TimeCount1++;
+
+    if(TimeCount1 &amp;lt;= 9){
+        lcd_clear();
+        lcd_convert(TimeCount1);
+    }else{
+        TimeCount1 = 0;
+    }
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;IFS0bits.T1IF = 0&lt;/strong&gt;&lt;br /&gt;割り込みサブルーチンの構文では割り込みフラグをクリアできないため&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;以上で100msec毎に1~9までの範囲でカウントアップするプログラムは完成です。&lt;/p&gt;</content>
+ </entry>
+ 
+ <entry>
+   <title>教育用マイコンボードの開発</title>
+   <link href="http://DaikiMaekawa.github.io/sppboard/2011/05/10/SPPBoard"/>
+   <updated>2011-05-10T00:00:00+09:00</updated>
+   <id>http://DaikiMaekawa.github.io/sppboard/2011/05/10/SPPBoard</id>
+   <content type="html">&lt;p&gt;千葉工業大学の中島研究室によって教育用マイコンボードであるSPPBoardが開発されました。&lt;/p&gt;
+
+&lt;p&gt;SPPは(独)科学技術振興機構のサイエンスパートナーシッププロジェクトの略で千葉県全ての工業高校と連携し、SPPBoardを用いたロボット活用教育講座が開催されました。&lt;/p&gt;
+
+&lt;p&gt;中核であるマイコンはdsPIC30F3014を採用し、開発ツールとしてMPLABとC30コンパイラを使用します。&lt;/p&gt;
+
+&lt;p&gt;提供されるのはボードだけで制御用のライブラリはこれから開発する予定です。&lt;/p&gt;
+
+&lt;h2 id='id1'&gt;回路図&lt;/h2&gt;
+
+&lt;p&gt;&lt;img alt='SPPBoard' src='/images/SPPBoard.BMP' /&gt;&lt;/p&gt;
+
+&lt;p&gt;このブログではサンプルプログラムを作成、解説しながらこの開発ボードを宣伝していこうと思います。&lt;/p&gt;</content>
+ </entry>
+ 
+ 
+</feed>
