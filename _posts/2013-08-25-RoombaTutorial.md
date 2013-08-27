@@ -8,7 +8,12 @@ tags : [ROS, Roomba]
 
 {% include JB/setup %}
 
-動作環境： Ubuntu12.04, ROS Groovy
+##動作環境
+
+    OS     : Ubuntu12.04
+    ROS ver: Groovy
+
+##RoombaをROSのコマンドで動かす
 
 ROSを使ってRoombaを動かすために必要そうな情報を収集しているとroomba_500_seriesという便利そうなパッケージを発見しました。
 
