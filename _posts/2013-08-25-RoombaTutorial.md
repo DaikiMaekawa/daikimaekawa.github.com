@@ -8,7 +8,7 @@ tags : [ROS, Roomba]
 
 {% include JB/setup %}
 
-##動作環境
+##開発環境
 
     OS     : Ubuntu12.04
     ROS ver: Groovy
