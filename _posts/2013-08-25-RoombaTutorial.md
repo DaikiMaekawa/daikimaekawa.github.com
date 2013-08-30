@@ -12,8 +12,8 @@ tags : [ROS, Roomba]
 
 ##開発環境
 
-    OS     : Ubuntu12.04
-    ROS ver: Groovy
+    OS     : Ubuntu12.04  
+    ROS ver: Groovy  
 
 **********
 
