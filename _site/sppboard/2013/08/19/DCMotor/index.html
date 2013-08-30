@@ -162,12 +162,15 @@
 
 <div class="row">
   <div class="span8">
-    <h2 id='id4'>開発環境</h2>
+    <hr>
 
-<pre><code>基盤       : SPPBoard(dsPIC30F3014使用)
-コンパイラ  : C30</code></pre>
+<h2 id="toc_0">開発環境</h2>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">基盤　　　　: SPPBoard(dsPIC30F3014使用)
+コンパイラ　: C30
+</code></pre></div>
+<hr>
 
-<h2 id='id5'>はじめに</h2>
+<h2 id="toc_1">はじめに</h2>
 
 <p>PWMの入門としてDCモータを制御するためのサンプルプログラムをSPPBoardで作成しました。</p>
 
@@ -175,7 +178,9 @@
 
 <p>ここでは、ロボット製作の初心者を対象にPWMの概念から丁寧に解説していきたいと思います。</p>
 
-<h2 id='id6'>サンプルプログラムの概要説明</h2>
+<hr>
+
+<h2 id="toc_2">サンプルプログラムの概要説明</h2>
 
 <p>OutPutCompareモジュールを使用し、モータの速度制御を行うプログラムです。</p>
 
@@ -183,77 +188,83 @@
 
 <p>その際に一定周期で正回転、逆回転を切り替えます。</p>
 
-<h2 id='outputcompare'>OutPutCompareモジュールとは</h2>
+<hr>
 
-<h3 id='id7'>概念</h3>
+<h2 id="toc_3">OutPutCompareモジュールとは</h2>
+
+<h3 id="toc_4">概念</h3>
 
 <p>OutPutCompareモジュールを簡単に言い表すなら高速でON/OFFを繰り返すことができる機能です。</p>
 
 <p>一定時間内におけるON/OFFの比率(デューティ比)を調整することにより速度を制御することができます。</p>
 
-<h3 id='id8'>動作</h3>
+<h3 id="toc_5">動作</h3>
 
 <p>ON/OFFの周期はタイマに依存します。</p>
 
 <p><strong>タイマによるカウントを100msecに設定し、デューティ比が50%の場合</strong></p>
 
-<p><img alt='Signal' src='/images/PWM01.jpg' /></p>
+<p><img src="/images/PWM01.jpg" alt="Signal"></p>
 
 <p>カウント周期はそのままでデューティ比だけを変更した場合を考えてみると以下の用になります。</p>
 
 <p><strong>デューティ比25%</strong></p>
 
-<p><img alt='Signal' src='/images/PWM02.jpg' /></p>
+<p><img src="/images/PWM02.jpg" alt="Signal"></p>
 
 <p><strong>デューティ比100%</strong></p>
 
-<p><img alt='Signal' src='/images/PWM03.jpg' /></p>
+<p><img src="/images/PWM03.jpg" alt="Signal"></p>
 
 <p>このようにデューティ比を変化させることで速度を制御することができます。</p>
 
-<h2 id='id9'>制御に必要な回路の知識</h2>
+<hr>
 
-<h3 id='id10'>ロジック回路の使用</h3>
+<h2 id="toc_6">制御に必要な回路の知識</h2>
 
-<p><img alt='Signal' src='/images/NAND01.jpg' /></p>
+<h3 id="toc_7">ロジック回路の使用</h3>
+
+<p><img src="/images/NAND01.jpg" alt="Signal"></p>
 
 <p>SPPBoardではOutPutCompareモジュールの出力に74HCT132Eを組み合わせています。</p>
 
-<p><img alt='Signal' src='/images/NAND02.jpg' /></p>
+<p><img src="/images/NAND02.jpg" alt="Signal"></p>
 
 <p>1Aと2AがPICのOC2(D1)ピンを共有している点に注目してください。</p>
 
 <p>OC2とはOutPutCompare2の略です。</p>
 
-<p>つまり、OC2からPWM出力を行っている際に74HCT132Eの1Aと2Aが同時に 1 -&gt; 0を一定周期で繰り返すということがわかります。</p>
+<p>つまり、OC2からPWM出力を行っている際に74HCT132Eの1Aと2Aが同時に
+1 -&gt; 0を一定周期で繰り返すということがわかります。 </p>
 
-<h3 id='id11'>モータドライバの使用</h3>
+<h3 id="toc_8">モータドライバの使用</h3>
 
 <p>次はモータドライバについて解説します。</p>
 
-<p><img alt='MotorDriver' src='/images/MotorDriver01.jpg' /></p>
+<p><img src="/images/MotorDriver01.jpg" alt="MotorDriver"></p>
 
 <p>SPPBoardにはTA7291Pを使っています。</p>
 
 <p>念のためモータドライバの原理についても解説しましょう。</p>
 
-<h3 id='h'>Hブリッジ回路</h3>
+<h3 id="toc_9">Hブリッジ回路</h3>
 
 <p>Mはモータを表しています。</p>
 
 <p><strong>ストップ</strong></p>
 
-<p><img alt='MotorDriver' src='/images/MotorDriver02.png' /></p>
+<p><img src="/images/MotorDriver02.png" alt="MotorDriver"></p>
 
-<p><strong>モータが回転</strong> <img alt='MotorDriver' src='/images/MotorDriver03.png' /></p>
+<p><strong>モータが回転</strong>
+<img src="/images/MotorDriver03.png" alt="MotorDriver"></p>
 
 <p><strong>先ほどと逆回転</strong></p>
 
-<p><img alt='MotorDriver' src='/images/MotorDriver04.png' /></p>
+<p><img src="/images/MotorDriver04.png" alt="MotorDriver"></p>
 
 <p><strong>ブレーキ</strong></p>
 
-<p><img alt='MotorDriver' src='/images/MotorDriver05.png' /></p>
+<p><img src="/images/MotorDriver05.png" alt="MotorDriver"></p>
 
 <p>(注)すべてのモータドライバが上記の仕様とは限りません。</p>
 
@@ -261,19 +272,18 @@
 
 <p>今回使用するTA7291Pはどうなっているのか仕様書から確認してみましょう。</p>
 
-<h3 id='id12'>モータドライバの仕様書から読み取る</h3>
+<h3 id="toc_10">モータドライバの仕様書から読み取る</h3>
 
 <p><strong>端子の確認</strong></p>
 
-<p><img alt='pin' src='/images/MotorDriver_spec01.jpg' /></p>
+<p><img src="/images/MotorDriver_spec01.jpg" alt="pin"></p>
 
 <p><strong>ファンクションの確認</strong></p>
 
-<p><img alt='func' src='/images/MotorDriver_spec02.jpg' /></p>
+<p><img src="/images/MotorDriver_spec02.jpg" alt="func"></p>
 
 <p>ファンクションを見ればモータドライバにどのような入力が必要なのかが一目でわかります。</p>
-
-<pre><code>ブレーキモード
+<div class="highlight"><pre><code class="text language-text" data-lang="text">ブレーキモード
  - IN1 5V
  - IN2 5V
 
@@ -283,51 +293,50 @@
 
 逆回転
  - IN1 0V
- - IN2 5V</code></pre>
-
-<h3 id='id13'>モータドライバへの接続</h3>
+ - IN2 5V
+</code></pre></div>
+<h3 id="toc_11">モータドライバへの接続</h3>
 
 <p><strong>モータドライバとロジック回路の接続</strong></p>
 
-<p><img alt='connect' src='/images/MotorDriver_spec03.jpg' /></p>
-
-<pre><code>TA7291P          74HCT132E
+<p><img src="/images/MotorDriver_spec03.jpg" alt="connect"></p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">TA7291P          74HCT132E
  IN1     &lt;--&gt;     2Y
- IN2     &lt;--&gt;     1Y</code></pre>
-
+ IN2     &lt;--&gt;     1Y
+</code></pre></div>
 <p><strong>モータドライバとロジック回路の関係性</strong></p>
 
 <p>(注) ()はそれ以外の組み合わせが存在する事を示しています。</p>
 
-<p><img alt='rel' src='/images/MotorDriver_spec04.jpg' /></p>
+<p><img src="/images/MotorDriver_spec04.jpg" alt="rel"></p>
 
 <p><strong>dsPICとロジック回路の関係性</strong></p>
 
 <p>前述したとおり、OutPutCompare2を使用した際、1Aと2Aが1 -&gt; 0を繰り返します。</p>
 
-<p><img alt='rel2' src='/images/MotorDriver_spec05.jpg' /></p>
+<p><img src="/images/MotorDriver_spec05.jpg" alt="rel2"></p>
 
 <p>このことからモータの回転を制御するために調節すればいいのは1Bと2Bだと分かります。</p>
 
 <p>以上で回路に関する説明は終わりです。</p>
 
-<h2 id='id14'>サンプルプログラム</h2>
+<hr>
+
+<h2 id="toc_12">サンプルプログラム</h2>
 
 <p>まずはピンの別名を定義</p>
-
-<pre><code>#define PWM_1A_AND_2A LATDbits.LATD1
+<div class="highlight"><pre><code class="text language-text" data-lang="text">#define PWM_1A_AND_2A LATDbits.LATD1
 #define PWM_1B LATFbits.LATF0
 #define PWM_2B LATFbits.LATF1
 
-enum MotionType{NORMAL, REVERSE};</code></pre>
-
+enum MotionType{NORMAL, REVERSE};
+</code></pre></div>
 <p>今回はOutPutCompare2を使用しますのでPWM_1A_AND_2Aを直接変更することはありません。</p>
 
 <p>コンフィギュレーション設定はいつもどおりなので省略</p>
 
-<h3 id='main'>main文の中</h3>
-
-<pre><code>short MotionType
+<h3 id="toc_13">main文の中</h3>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">short MotionType
 int i;
 float Duty_set[] = {1.0, 0.75, 0.5, 0.25, 0.0};
 
@@ -358,13 +367,18 @@ while(1){
         PWM_2B = 0;
         MotionType = NORMAL;
     }
-}</code></pre>
-
+}
+</code></pre></div>
 <ul>
-<li><strong>OpenOC2(&#8230;)</strong><br />OC_IDLE_CON : アイドルループ内動作継続<br />OC_TIMER2_SRC : タイマ2を選択<br />OC_PWM_FAULT_PIN_DISABLE : 出力モードをPWMに設定<br />第2引数 : OCxRSレジスタに設定する値<br />第3引数 : OCxRレジスタに設定する値</li>
+<li><strong>OpenOC2(...)</strong><br>
+OC_IDLE_CON              : アイドルループ内動作継続<br>
+OC_TIMER2_SRC            : タイマ2を選択<br>
+OC_PWM_FAULT_PIN_DISABLE : 出力モードをPWMに設定<br>
+第2引数                  : OCxRSレジスタに設定する値<br>
+第3引数                  : OCxRレジスタに設定する値<br></li>
 </ul>
 
-<h3 id='openoc'>OpenOC関数の詳しい解説</h3>
+<h3 id="toc_14">OpenOC関数の詳しい解説</h3>
 
 <p>OutPutCompareモジュールはタイマ2かタイマ3のカウンタとOCxRレジスタかOCxRSレジスタの値を常時比較していて、一致したとき、何らかの出力をOCx端子にするというものです。</p>
 
@@ -374,61 +388,64 @@ while(1){
 
 <p>2) そしてカウンタはタイマ2を使用します。</p>
 
-<p>3) PWMモードを指定しているので、OCxRレジスタが比較対象(今回OCxRSレジスタの値は意味なし)となり、一致によりOCxレジスタはLowに制御されます。 逆にタイマが0クリアされるときは、OCxレジスタがHighに制御されます。</p>
+<p>3) PWMモードを指定しているので、OCxRレジスタが比較対象(今回OCxRSレジスタの値は意味なし)となり、一致によりOCxレジスタはLowに制御されます。
+逆にタイマが0クリアされるときは、OCxレジスタがHighに制御されます。</p>
 
 <ul>
-<li>
-<p><strong>OpenTimer2(&#8230;)</strong><br />4/80MHzx64x3125=10msec</p>
+<li><p><strong>OpenTimer2(...)</strong><br>
+4/80MHzx64x3125=10msec</p>
 
-<p>OC2出力周期(ON/OFF周期)が0.01秒に決定</p>
-</li>
+<p>OC2出力周期(ON/OFF周期)が0.01秒に決定</p></li>
 </ul>
 
-<h3 id='id15'>モータの回転方向とブレーキ制御</h3>
-
-<pre><code>PWM_1B = 1
-PWM_2B = 0</code></pre>
-
+<h3 id="toc_15">モータの回転方向とブレーキ制御</h3>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">PWM_1B = 1
+PWM_2B = 0
+</code></pre></div>
 <p>この時モータは正回転する</p>
 
-<p><img alt='Motor_cw' src='/images/Motor_cw.jpg' /></p>
+<p><img src="/images/Motor_cw.jpg" alt="Motor_cw"></p>
 
 <p>一応ファンクションを確認</p>
 
-<p><img alt='Motor_cw_func' src='/images/Motor_cw_func.jpg' /></p>
+<p><img src="/images/Motor_cw_func.jpg" alt="Motor_cw_func"></p>
 
 <p>ではOC2出力が0の時モータは、ちゃんと停止しているのでしょうか。</p>
 
-<p><img alt='Motor_stop' src='/images/Motor_stop.jpg' /></p>
+<p><img src="/images/Motor_stop.jpg" alt="Motor_stop"></p>
 
 <p>モータがブレーキモードになっていることがわかると思います。</p>
 
 <p>一応ファンクションを確認</p>
 
-<p><img alt='Motor_stop_func' src='/images/Motor_stop_func.jpg' /></p>
-
-<pre><code>PWM_1B = 0
-PWM_2B = 1</code></pre>
-
+<p><img src="/images/Motor_stop_func.jpg" alt="Motor_stop_func"></p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">PWM_1B = 0
+PWM_2B = 1
+</code></pre></div>
 <p>この時モータは逆回転する。</p>
 
-<p><img alt='Motor_ccw' src='/images/Motor_ccw.jpg' /></p>
+<p><img src="/images/Motor_ccw.jpg" alt="Motor_ccw"></p>
 
 <p>一応ファンクションを確認</p>
 
-<p><img alt='Motor_ccw_func' src='/images/Motor_ccw_func.jpg' /></p>
+<p><img src="/images/Motor_ccw_func.jpg" alt="Motor_ccw_func"></p>
 
-<h3 id='id16'>モータの速度制御</h3>
+<h3 id="toc_16">モータの速度制御</h3>
 
 <ul>
-<li><strong>SetDCOC2PWM(3125 * Duty_set[i])</strong><br />デューティ比を100% ~ 0%まで段階的に変更する</li>
+<li><p><strong>SetDCOC2PWM(3125 * Duty_set[i])</strong><br>
+デューティ比を100% ~ 0%まで段階的に変更する</p>
+
+<p>これによりモータがブレーキモードになる比率を変更でき、
+結果として速度を変化させることができます。</p></li>
 </ul>
 
-<p>これによりモータがブレーキモードになる比率を変更でき、 結果として速度を変化させることができます。</p>
+<hr>
 
 <p>初心者向けの解説なので冗長な説明が多かったと思いますが</p>
 
 <p>以上でDCモータの制御に関する解説を終わります。</p>
+
     <hr>
     <div class="pagination btn-group">
       
@@ -486,7 +503,7 @@ PWM_2B = 1</code></pre>
 
   
      
-    	<li><a href="/tags.html#dsPIC-ref">dsPIC <span>4</span></a></li>
+    	<li><a href="/tags.html#dsPIC-ref">dsPIC <span>5</span></a></li>
      
     	<li><a href="/tags.html#PWM-ref">PWM <span>1</span></a></li>
     

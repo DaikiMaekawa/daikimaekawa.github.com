@@ -162,26 +162,30 @@
 
 <div class="row">
   <div class="span8">
-    <h2 id='id2'>開発環境</h2>
+    <hr>
 
-<pre><code>基盤       : SPPBoard(dsPIC30F3014使用)
-コンパイラ  : C30</code></pre>
+<h2 id="toc_0">開発環境</h2>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">基盤　　　　: SPPBoard(dsPIC30F3014使用)
+コンパイラ　: C30
+</code></pre></div>
+<hr>
 
-<h2 id='id3'>はじめに</h2>
+<h2 id="toc_1">はじめに</h2>
 
 <p>組み込みプログラムの入門として</p>
 
 <p>1 ~ 9までの数字を0.1秒毎にカウントアップしてLCDの1マス目に表示するプログラムを作成しました。</p>
 
-<p>LCDは<a href='http://akizukidenshi.com/catalog/g/gP-01797/' title='SD1602HUOB'>SD1602HUOB</a>を使用します。</p>
+<p>LCDは<a href="http://akizukidenshi.com/catalog/g/gP-01797/" title="SD1602HUOB">SD1602HUOB</a>を使用します。</p>
 
 <p>それでは、仕様書の読み方から解説していきたいと思います。</p>
 
-<h2 id='lcd'>LCDの仕様書から必要な情報を読み取ろう</h2>
+<hr>
+
+<h2 id="toc_2">LCDの仕様書から必要な情報を読み取ろう</h2>
 
 <p><strong>基礎知識</strong></p>
-
-<pre><code>R/S端子 
+<div class="highlight"><pre><code class="text language-text" data-lang="text">R/S端子 
  - Low : コマンドと認識
  - High: 文字データと認識
 
@@ -190,28 +194,26 @@ R/W端子
  - High: Readモード
 
 E端子
- - Low -&gt; Highに変化で命令を回収</code></pre>
-
+ - Low -&gt; Highに変化で命令を回収
+</code></pre></div>
 <p>今回はR/WはGNDに落としているため常にWriteモードです。</p>
 
 <p>E端子は意図的な命令であることと信号を送るタイミングを知らせるために使います。</p>
 
 <p><strong>用意されたコマンド</strong></p>
-
-<pre><code>Clear Display       0000 0001
+<div class="highlight"><pre><code class="text language-text" data-lang="text">Clear Display       0000 0001
 Cursor At Home      0000 0010
 Entry Mode Set      0000 0100
 Display ON/OFF      0000 1000
 Cursor/DisplayShift 0001 0000
 Function Set        0010 0000
 CGRAW AddressSet    0100 0000
-DDRAW AddressSet    1000 0000</code></pre>
-
+DDRAW AddressSet    1000 0000
+</code></pre></div>
 <p>どの位置に1を立てるかでどのコマンドかが判別されます。</p>
 
 <p><strong>LCDの初期化手順</strong></p>
-
-<pre><code>電源ON
+<div class="highlight"><pre><code class="text language-text" data-lang="text">電源ON
 15ms以上待つ
 8ビットモードに設定
 4.1ms以上待つ
@@ -222,22 +224,22 @@ DDRAW AddressSet    1000 0000</code></pre>
 ファンクション設定
 ディスプレイOFF
 ディスプレイON
-エントリーモード</code></pre>
+エントリーモード
+</code></pre></div>
+<hr>
 
-<h2 id='lcd'>LCDの制御関数を作ろう</h2>
+<h2 id="toc_3">LCDの制御関数を作ろう</h2>
 
 <p>まず、ピンの名前をわかりやすく定義しましょう。</p>
-
-<pre><code>#define LCD_RS LATBbits.LATB5
+<div class="highlight"><pre><code class="text language-text" data-lang="text">#define LCD_RS LATBbits.LATB5
 #define LCD_E  LATBbits.LATB4
 #define LCD_D4 LATBbits.LATB9
 #define LCD_D5 LATBbits.LATB10
 #define LCD_D6 LATBbits.LATB11
-#define LCD_D7 LATBbits.LATB12</code></pre>
-
+#define LCD_D7 LATBbits.LATB12
+</code></pre></div>
 <p><strong>8ビットモード用指令関数</strong></p>
-
-<pre><code>void lcd_out8(unsigned char dat){
+<div class="highlight"><pre><code class="text language-text" data-lang="text">void lcd_out8(unsigned char dat){
     LCD_RS = 0;
     LCD_E  = 1;
     LCD_D4 = (dat &amp; 0x01);
@@ -251,46 +253,36 @@ DDRAW AddressSet    1000 0000</code></pre>
     wait_usec(50);
     LCD_E = 0;
     wait_usec(50);
-}</code></pre>
-
+}
+</code></pre></div>
 <ul>
-<li>
-<p><strong>LCD_RS = 0</strong><br />LCDにコマンドを送信</p>
-</li>
-
-<li>
-<p><strong>LCD_E = 1</strong><br />コマンドを回収(450nsecの時間が必要)</p>
-</li>
-
-<li>
-<p><strong>LCD_D[4-7] = (dat &amp; 0x01)</strong><br />LCDの上位4本に指令を送信</p>
-</li>
-
-<li>
-<p><strong>wait_usec(50)</strong><br />上記の命令を回収</p>
-</li>
-
-<li>
-<p><strong>LCD_E = 0</strong><br />E端子をLowへ</p>
-</li>
+<li><strong>LCD_RS = 0</strong><br>
+LCDにコマンドを送信</li>
+<li><p><strong>LCD_E = 1</strong><br>
+コマンドを回収(450nsecの時間が必要)</p></li>
+<li><p><strong>LCD_D[4-7] = (dat &amp; 0x01)</strong><br>
+LCDの上位4本に指令を送信</p></li>
+<li><p><strong>wait_usec(50)</strong><br>
+上記の命令を回収</p></li>
+<li><p><strong>LCD_E = 0</strong><br>
+E端子をLowへ</p></li>
 </ul>
 
 <p><strong>上位ピンに一つずつ送る理由</strong></p>
 
-<p><img alt='SPPBoard' src='/images/SPPBoard.BMP' /></p>
+<p><img src="/images/SPPBoard.BMP" alt="SPPBoard"></p>
 
 <p>LCDの上位4ピンは9, 10, 11, 12に接続されています。</p>
 
 <p>char型は8ビットなのでまとめてLATBで出力に変更できないからです。</p>
 
 <p><strong>4ビットモード用指令関数</strong></p>
-
-<pre><code>void lcd_out4(int rs, unsigned char dat){
+<div class="highlight"><pre><code class="text language-text" data-lang="text">void lcd_out4(int rs, unsigned char dat){
     unsigned char bk = dat;
 
     LCD_RS = rs;
     LCD_E  = 1;
-    
+
     bk = bk &gt;&gt; 4;
     LCD_D4 = (bk &amp; 0x01);
     bk = bk &gt;&gt; 1;
@@ -319,8 +311,8 @@ DDRAW AddressSet    1000 0000</code></pre>
     wait_usec(50);
     LCD_RS = 0;
 
-}</code></pre>
-
+}
+</code></pre></div>
 <p>引数rsが0の時コマンド、1の時文字データとして扱います。</p>
 
 <p>LCDへは上位4ビット、下位4ビットの順に送信します。</p>
@@ -332,9 +324,8 @@ DDRAW AddressSet    1000 0000</code></pre>
 <p>それぞれ反転して0010 1000となることがわかるでしょう。</p>
 
 <p><strong>LCD初期化関数</strong></p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">void lcd_format(void){
 
-<pre><code>void lcd_format(void){
-    
     wait_msec(20);
     lcd_out8(0x23);
     wait_msec(10);
@@ -345,95 +336,85 @@ DDRAW AddressSet    1000 0000</code></pre>
     lcd_out4(0, 0x06);
     lcd_out4(0, 0x02);
 
-}</code></pre>
-
+}
+</code></pre></div>
 <p>仕様書よりも長めにwaitを入れています。</p>
 
 <ul>
-<li>
-<p><strong>lcd_out8(0x23)</strong><br />Function Set コマンド<br />0010 0011 -&gt; (認識)0011 0000</p>
-</li>
-
-<li>
-<p><strong>lcd_out8(0x22)</strong><br />Function Set コマンド<br />0010 0010 -&gt; (認識)0010 0000</p>
-</li>
-
-<li>
-<p><strong>lcd_out4(0, 0x28)</strong><br />Function Set コマンド<br />0010 1000</p>
-</li>
-
-<li>
-<p><strong>lcd_out4(0, 0x0E)</strong><br />Display ON/OFF コマンド<br />0000 1110</p>
-</li>
-
-<li>
-<p><strong>lcd_out4(0, 0x06)</strong><br />Entry ModeSet コマンド<br />0000 0110</p>
-</li>
-
-<li>
-<p><strong>lcd_out4(0, 0x02)</strong><br />Cursor At Home コマンド<br />0000 0010</p>
-</li>
+<li><p><strong>lcd_out8(0x23)</strong><br>
+Function Set コマンド<br>
+0010 0011 -&gt; (認識)0011 0000</p></li>
+<li><p><strong>lcd_out8(0x22)</strong><br>
+Function Set コマンド<br>
+0010 0010 -&gt; (認識)0010 0000</p></li>
+<li><p><strong>lcd_out4(0, 0x28)</strong><br>
+Function Set コマンド<br>
+0010 1000</p></li>
+<li><p><strong>lcd_out4(0, 0x0E)</strong><br>
+Display ON/OFF コマンド<br>
+0000 1110</p></li>
+<li><p><strong>lcd_out4(0, 0x06)</strong><br>
+Entry ModeSet コマンド<br>
+0000 0110</p></li>
+<li><p><strong>lcd_out4(0, 0x02)</strong><br>
+Cursor At Home コマンド<br>
+0000 0010</p></li>
 </ul>
 
 <p><strong>1文字表示関数</strong></p>
-
-<pre><code>void lcd_data(unsigned char asci){
+<div class="highlight"><pre><code class="text language-text" data-lang="text">void lcd_data(unsigned char asci){
     lcd_out4(1, asci);
     wait_usec(50);
-}</code></pre>
-
+}
+</code></pre></div>
 <p><strong>文字列表示関数</strong></p>
-
-<pre><code>void lcd_puts(unsigned char *str){
+<div class="highlight"><pre><code class="text language-text" data-lang="text">void lcd_puts(unsigned char *str){
     while(*str != 0x00){
         lcd_out4(1, *str);
         str++;
     }
-}</code></pre>
-
+}
+</code></pre></div>
 <p><strong>数字表示関数</strong></p>
-
-<pre><code>void lcd_convert(unsigned int number){
+<div class="highlight"><pre><code class="text language-text" data-lang="text">void lcd_convert(unsigned int number){
     lcd_data(&#39;0&#39; + number);
-}</code></pre>
-
+}
+</code></pre></div>
 <p><strong>画面消去関数</strong></p>
-
-<pre><code>void lcd_clear(void){
+<div class="highlight"><pre><code class="text language-text" data-lang="text">void lcd_clear(void){
     lcd_out4(0, 0x01);
     wait_usec(1650);
-}</code></pre>
+}
+</code></pre></div>
+<hr>
 
-<h2 id='lcd'>LCD制御関数を使ってみよう</h2>
+<h2 id="toc_4">LCD制御関数を使ってみよう</h2>
 
 <p>まずはコンフィギュレーション設定をしましょう。</p>
-
-<pre><code>_FOSC(CSW_FSCM_OFF &amp; XT_PLL8);
+<div class="highlight"><pre><code class="text language-text" data-lang="text">_FOSC(CSW_FSCM_OFF &amp; XT_PLL8);
 _FWDT(WDT_OFF);
 _FBORPOR(PBOR_ON &amp; BORV_20 &amp; PWRT_64 &amp; MCLR_EN);
-_FGS(CODE_PROT_OFF);</code></pre>
-
+_FGS(CODE_PROT_OFF);
+</code></pre></div>
 <ul>
-<li>
-<p><strong>_FOSC(CSW_FSCM_OFF &amp; XT_PLL8)</strong><br />クロック停止の際の処理を監視せず、内部の別クロック源への切り替えもしないので<br />CSW(クロック切り替え)とFSCM(クロックのエラー検出)をOFFに設定<br />8x10MHz(外部発振器) = 80MHz(クロック周波数)</p>
-</li>
-
-<li>
-<p><strong>_FWDT(WDT_OFF)</strong><br />特にシステムの監視を行わないためウォッチドックタイマを無効</p>
-</li>
-
-<li>
-<p><strong>_FBORPOR(PBOR_ON &amp; BORV_20 &amp; PWRT_64 &amp; MCLR_EN)</strong><br />電源ON直後に動作をリセット<br />電源OFF直後に動作停止<br />電源OFFを検出する電圧 -&gt; 2.0V<br />電源ON直後のリセットパルス幅 -&gt; 64msec<br />MCLRピンを有効</p>
-</li>
-
-<li>
-<p><strong>_FGS(CODE_PROT_OFF)</strong><br />コードプロテクト -&gt; 読み出し、書き込みともにOFF</p>
-</li>
+<li><p><strong>_FOSC(CSW_FSCM_OFF &amp; XT_PLL8)</strong><br>
+クロック停止の際の処理を監視せず、内部の別クロック源への切り替えもしないので<br>
+CSW(クロック切り替え)とFSCM(クロックのエラー検出)をOFFに設定<br>
+8x10MHz(外部発振器) = 80MHz(クロック周波数)</p></li>
+<li><p><strong>_FWDT(WDT_OFF)</strong><br>
+特にシステムの監視を行わないためウォッチドックタイマを無効</p></li>
+<li><p><strong>_FBORPOR(PBOR_ON &amp; BORV_20 &amp; PWRT_64 &amp; MCLR_EN)</strong><br>
+電源ON直後に動作をリセット<br>
+電源OFF直後に動作停止<br>
+電源OFFを検出する電圧 -&gt; 2.0V<br>
+電源ON直後のリセットパルス幅 -&gt; 64msec<br>
+MCLRピンを有効</p></li>
+<li><p><strong>_FGS(CODE_PROT_OFF)</strong><br>
+コードプロテクト -&gt; 読み出し、書き込みともにOFF</p></li>
 </ul>
 
 <p><strong>main文の中</strong></p>
-
-<pre><code>unsigned char msgA[] = &quot;start&quot;;
+<div class="highlight"><pre><code class="text language-text" data-lang="text">unsigned char msgA[] = &quot;start&quot;;
 LATB = 0x0;
 TRISB = 0x00;
 
@@ -446,23 +427,25 @@ ConfigIntTimer1(T1_INT_PRIOR_3 &amp; T1_INT_ON);
 OpenTimer1(T1_ON &amp; T1_GATE_OFF &amp; T1_PS_1_64 &amp; 
            T1_SYNC_EXT_OFF &amp; T1_SOURCE_INT, 31250-1);
 
-while(1);</code></pre>
-
+while(1);
+</code></pre></div>
 <ul>
-<li>
-<p><strong>ConfigIntTimer1(T1_INT_PRIOR_3 &amp; T1_INT_ON)</strong><br />優先度3 &amp; 割り込み許可</p>
-</li>
+<li><p><strong>ConfigIntTimer1(T1_INT_PRIOR_3 &amp; T1_INT_ON)</strong><br>
+優先度3 &amp; 割り込み許可</p></li>
+<li><p><strong>OpenTimer1(...)</strong><br>
+タイマ周期=(4/クロック周波数)x(プリスケーラ分周比)x(PR1設定-1)
+100msec   = 4/80MHz          x 64                 x 31250</p>
 
-<li>
-<p><strong>OpenTimer1(&#8230;)</strong><br />タイマ周期=(4/クロック周波数)x(プリスケーラ分周比)x(PR1設定-1) 100msec = 4/80MHz x 64 x 31250</p>
-
-<p>T1_ON : タイマ1を有効<br />T1_GATE_OFF : ゲートタイマモードOFF(外部信号の時間幅の計測をしない)<br />T1_PS_1_64 : プリスケーラ分周比を64に設定<br />T1_SYNC_EXT_OFF : タイマ非同期<br />T1_SOURCE_INT : 内部クロックを使用<br />31250-1 : PR1設定</p>
-</li>
+<p>T1_ON           : タイマ1を有効<br>
+T1_GATE_OFF     : ゲートタイマモードOFF(外部信号の時間幅の計測をしない)<br>
+T1_PS_1_64      : プリスケーラ分周比を64に設定<br>
+T1_SYNC_EXT_OFF : タイマ非同期<br>
+T1_SOURCE_INT   : 内部クロックを使用<br>
+31250-1         : PR1設定</p></li>
 </ul>
 
 <p><strong>タイマ1の定義</strong></p>
-
-<pre><code>void _ISR _T1Interrupt(void){
+<div class="highlight"><pre><code class="text language-text" data-lang="text">void _ISR _T1Interrupt(void){
     static unsigned int TimeCount1 = 0;
     IFS0bits.T1IF = 0;
 
@@ -474,13 +457,17 @@ while(1);</code></pre>
     }else{
         TimeCount1 = 0;
     }
-}</code></pre>
-
+}
+</code></pre></div>
 <ul>
-<li><strong>IFS0bits.T1IF = 0</strong><br />割り込みサブルーチンの構文では割り込みフラグをクリアできないため</li>
+<li><strong>IFS0bits.T1IF = 0</strong><br>
+割り込みサブルーチンの構文では割り込みフラグをクリアできないため</li>
 </ul>
 
+<hr>
+
 <p>以上で100msec毎に1~9までの範囲でカウントアップするプログラムは完成です。</p>
+
     <hr>
     <div class="pagination btn-group">
       
@@ -540,7 +527,7 @@ while(1);</code></pre>
      
     	<li><a href="/tags.html#LCD-ref">LCD <span>1</span></a></li>
      
-    	<li><a href="/tags.html#dsPIC-ref">dsPIC <span>4</span></a></li>
+    	<li><a href="/tags.html#dsPIC-ref">dsPIC <span>5</span></a></li>
     
   
 
