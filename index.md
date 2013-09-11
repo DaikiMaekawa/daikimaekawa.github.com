@@ -8,7 +8,9 @@ tagline:
 ## このブログについて
 
 ロボットのソフトウェア開発に関する情報を配信します。
- 
+
+このサイトのRSSを購読する -> [RSS Feed](http://daikimaekawa.github.io/rss.xml "RSS Feed")
+
 ## Posts List
 
 <ul class="posts">
