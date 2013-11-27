@@ -1,0 +1,517 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>
+      
+        XBeeを用いた無線通信 - 
+      
+      ゼロから始めるロボットプログラミング入門講座
+    </title>
+    
+    <meta name="author" content="Daiki Maekawa">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    <link href="/assets/themes/hooligan/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/themes/hooligan/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">    
+    <link rel="stylesheet" type="text/css" href="/assets/themes/hooligan/css-social-buttons/css/zocial.stripped.css">
+    <link href="/assets/themes/hooligan/css/pygments.css" rel="stylesheet" type="text/css" media="all">
+    <link href="/assets/themes/hooligan/css/darkstrap.css" rel="stylesheet" type="text/css" media="all">    
+    <link href="/assets/themes/hooligan/css/style.css?body=1" rel="stylesheet" type="text/css" media="all">
+
+    
+    <!-- fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+  </head>
+
+  <body>
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="container">
+          <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>      
+
+
+          <a class="brand" href="/">ゼロから始めるロボットプログラミング入門講座</a>
+
+
+          <div class="nav-collapse">
+            <ul class="nav">
+              
+              
+              
+
+
+  
+    
+      
+    
+  
+    
+      
+    
+  
+    
+      
+    
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/archive.html">Archive</a></li>
+      	
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/tags.html">Tags</a></li>
+      	
+      
+    
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/categories.html">Categories</a></li>
+      	
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/pages.html">Pages</a></li>
+      	
+      
+    
+  
+    
+      
+    
+  
+    
+      
+    
+  
+
+
+
+            </ul>
+            <ul class="nav pull-right social visible-desktop">
+              <li class="divider-vertical"></li>
+              
+                <li>
+                  <a href="https://github.com/DaikiMaekawa" class="zocial github icon" target="_blank">
+                    <span class="hidden-desktop">Github</span>
+                  </a>
+                </li>
+              
+                  
+                                        
+                         
+                                  
+              
+                <li>
+                  <a href="http://feeds.feedburner.com/feedname" class="zocial rss icon" target="_blank">
+                    <span class="hidden-desktop">FeedBurner</span>
+                  </a>
+                </li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="content">
+        
+<div class="page-header">
+  <h1>
+    XBeeを用いた無線通信 
+    
+      <small>dsPIC入門講座06</small>
+    
+  </h1>
+</div>
+
+<div class="row">
+  <div class="span8">
+    <hr>
+
+<h2 id="toc_0">開発環境</h2>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">基盤　　　　: SPPBoard(dsPIC30F3014使用)
+コンパイラ　: C30
+XBee        : TODO
+</code></pre></div>
+<hr>
+
+<h2 id="toc_1">はじめに</h2>
+
+<p>XBeeの通信方式はシリアル通信なのでdsPICのUARTに直結することができます。</p>
+
+<p>そこで、今回はXBeeによるdsPIC/PC間通信を題材にUARTを用いてシリアル通信を実装する方法について解説したいと思います。</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">dsPIC - XBee(A) &lt;--&gt; XBee(B) - PC
+</code></pre></div>
+<hr>
+
+<h2 id="toc_2">UARTとは</h2>
+
+<p>単位時間あたり1bitずつ送られてくるシリアルデータをその都度シフトして適当なパラレルデータに変換する回路のことです。</p>
+
+<h2 id="toc_3">回路の基礎知識</h2>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">RX: 受信
+TX: 送信
+</code></pre></div>
+<h3 id="toc_4">dsPIC側のXBee</h3>
+
+<p>UART2の端子を使用します。</p>
+
+<p><img src="/images/UART_pin.jpg" alt="UART_pin"></p>
+
+<h3 id="toc_5">PC側のXBee</h3>
+
+<p>PCからXBeeへの接続方法はUSBで接続するだけで済むようにしたいと思います。</p>
+
+<p>そのために今回はFT232RL_MODULEという変換モジュールを使用します。</p>
+
+<p>これはUSBの信号をXBeeに接続可能なTLLレベルに変換してくれるものです。</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">FT232RL_MODULE  &lt;--&gt;  XBee
+1  TXD          &lt;--&gt;  3  DIN/-CONFIG
+5  RXD          &lt;--&gt;  2  DOUT
+24 GND          &lt;--&gt;  10 GND
+19 3V3          &lt;--&gt;  1  VCC
+</code></pre></div>
+<hr>
+
+<h2 id="toc_6">XBeeの設定</h2>
+
+<h3 id="toc_7">PC側のXBee</h3>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">ボーレート  115200bps
+FunctionSet ZIGBEECOORDINATOR AT
+PANID       500
+DH          13A200
+DL          406E8886
+</code></pre></div>
+<h3 id="toc_8">dsPIC側のXBee</h3>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">ボーレート  115200bps
+FunctionSet ZIGBEEROUTER AT
+PANID       500
+DH          13A200
+DL          40625D41
+</code></pre></div>
+<hr>
+
+<h2 id="toc_9">サンプルプログラム</h2>
+
+<p>C30コンパイラのバグでUARTで使用するピンはこちら側で定義する必要があります。</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">#define UART_RX_TX 0xFBE7
+#define UART_ALTRX_ALTTX 0xFFE7
+</code></pre></div>
+<p>(注)dsPIC30F3014はuart.hに上の定義がありません。</p>
+
+<h3 id="toc_10">送信完了待ち関数</h3>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">void WaitSendString(const short UartChannel){
+    switch(UartChannel){
+        case UART1:
+            while(BusyUART1());
+            break;
+        case UART2:
+            while(BusyUART2());
+            break;
+    }
+}
+</code></pre></div>
+<ul>
+<li><p><strong>BusyUARTx()</strong></p>
+
+<p>送信中なら1、送信完了なら0を返す</p></li>
+</ul>
+
+<h3 id="toc_11">データ送信関数</h3>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">void SendString(const short UartChannel, unsigned int *string){
+    switch(UartChannel){
+        case UART1:
+            putsUART1(string);
+            break;
+        case UART2:
+            putsUART2(string);
+            break;
+    }
+    WaitSendString(UartChannel);
+}
+</code></pre></div>
+<h3 id="toc_12">受信完了待ち関数</h3>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">void WaitGetString(const short UartChannel){
+    switch(UartChannel){
+        case UART1:
+            while(!DataRdyUART1());
+            break;
+        case UART2:
+            while(!DataRdyUART2());
+            break;
+    }
+}
+</code></pre></div>
+<ul>
+<li><p><strong>DataRdyUARTx()</strong></p>
+
+<p>受信中なら0、受信完了なら1を返す</p></li>
+</ul>
+
+<h3 id="toc_13">コマンド受信関数</h3>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">char *GetCommand(const short UartChannel){
+    unsigned char moji;
+    int count = 0;
+    static char string[MAX_UARTWORD];
+
+    WaitGetString(UartChannel);
+
+    switch(UartChannel){
+        case UART1:
+            moji = ReadUART1();
+            break;
+        case UART2:
+            moji = ReadUART2();
+            break;
+    }
+
+    while((moji != &#39;\r&#39;) &amp;&amp; (count &lt; MAX_UARTWORD)){
+        string[count] = moji;
+        count++;
+        WaitGetString(UartChannel);
+        switch(UartChannel){
+            case UART1:
+                moji = ReadUART1();
+                break;
+            case UART2:
+                moji = ReadUART2();
+                break;
+        }
+    }
+
+    string[count] = 0x00;
+    return string;
+}
+</code></pre></div>
+<ul>
+<li><strong>ReadUARTx()</strong>
+1文字の受信関数</li>
+</ul>
+
+<h3 id="toc_14">UART初期化関数</h3>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">void UartInitFunc(void){
+    unsigned int config1 = UART_EN &amp; UART_IDLE_CON &amp; UART_ALTRX_ALTTX &amp; 
+        UART_NO_PAR_8BIT &amp; UART_1STOPBIT &amp; UART_DIS_WAKE &amp; UART_DIS_LOOPBACK &amp; UART_DIS_ABAUD;
+
+    unsigned int config2 = UART_INT_TX_BUF_EMPTY &amp; UART_TX_PIN_NORMAL &amp; UART_TX_ENABLE &amp; 
+        UART_INT_RX_CHAR &amp; UART_ADR_DETECT_DIS &amp; UART_RX_OVERRUN_CLEAR;
+
+    OpenUART1(config1, config2, 10);
+    OpenUART2(config1, config2, 10); //115kbps
+
+    /*受信割り込み禁止、送信割り込み禁止*/
+    ConfigIntUART1(UART_RX_INT_DIS &amp; UART_TX_INT_DIS);
+    ConfigIntUART2(UART_RX_INT_DIS &amp; UART_TX_INT_DIS);
+
+}
+</code></pre></div>
+<ul>
+<li><p><strong>OpenUARTx(unsigned int config1, unsigned int config2, unsigned int ubrg)</strong></p>
+
+<p>ubrg(UxBRG) = FCY / (16 * BaudRate) - 1</p>
+
+<p>FCYとはFOSCを1/2倍したものです。</p>
+
+<p>FOSCは実際の命令周波数なので、クロック生成部分で出力される周波数の1/2となります。(PICは2つのクロックで1個の命令が実行されるため)</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">システムクロック80MHzで115kbpsのボーレートを得たい場合
+UxBRG = 20000 / (16 * 115) - 1
+UxBRG = 0.987
+ubrgに10を渡せば良いことがわかります。
+</code></pre></div></li>
+<li><p><strong>UART_EN or UART_DIS</strong></p>
+
+<p>UARTモジュールを有効/無効</p></li>
+<li><p><strong>UART_IDLE_CON or UART_IDLE_STOP</strong></p>
+
+<p>アイドル中動作継続/停止</p></li>
+<li><p><strong>UART_ALTRX_ALTTX or UART_RX_TX</strong></p>
+
+<p>代替/通常ピンを使用</p></li>
+<li><p><strong>UART_NO_PAR_9BIT or UART_ODD_PAR_8BIT or UART_EVEN_PAR_8BIT or UART_NO_PAR_8BIT</strong></p>
+
+<p>9ビットデータ + パリティなし</p>
+
+<p>8ビットデータ + 奇数パリティ</p>
+
+<p>8ビットデータ + 偶数パリティ</p>
+
+<p>8ビットデータ + パリティなし</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">念のためパリティビットについての復習
+
+パリティビットとはデータが正常に送られたかを検査するために使用されるビットです。
+偶数パリティ、奇数パリティの2種類が存在し、これは送信するデータの1の数が偶数または奇数になるようにパリティビットで調整されます。
+
+(例)
+1000 0010 &#39;A&#39;というASCIIコードを送信する
+
+偶数パリティ
+1000 00100
+
+奇数パリティ
+1000 00101
+</code></pre></div></li>
+<li><p><strong>UART_2STOPBITS or UART_1STOPBIT</strong></p>
+
+<p>ストップビット長を2ビット/1ビットに設定</p></li>
+<li><p><strong>UART_DIS_WAKE</strong></p>
+
+<p>SLEEP中にスタートビットが来た時のウェイクアップを有効化</p></li>
+<li><p><strong>UART_EN_LOOPBACK or UART_DIS_LOOPBACK</strong></p>
+
+<p>ループバックモード(送信したデータを自分に戻してテストする機能)を有効/無効</p></li>
+<li><p><strong>UART_EN_ABAUD or UART_DIS_ABAUD</strong></p>
+
+<p>ボーレートの自動検出を有効/無効</p></li>
+<li><p><strong>UART_INT_TX_BUF_EMPTY or UART_INT_TX</strong></p>
+
+<p>送信バッファが完全に空になったら/空きがあれば割り込む</p></li>
+<li><p><strong>UART_TX_PIN_NORMAL or UART_TX_PIN_LOW</strong></p>
+
+<p>通常動作/ブレーク</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">ブレーク信号とは中断信号のことです。
+通信を強制的に中断して初期状態に戻したりする際に用いられます。
+</code></pre></div></li>
+<li><p><strong>UART_TX_ENABLE or UART_TX_DISABLE</strong></p>
+
+<p>送信有効/無効</p></li>
+<li><p><strong>UART_INT_RX_CHAR</strong></p>
+
+<p>文字を受信する度に割り込む</p></li>
+<li><p><strong>UART_ADR_DETECT_DIS</strong></p>
+
+<p>アドレス文字を検出しない</p></li>
+<li><p><strong>UART_RX_OVERRUN_CLEAR</strong></p>
+
+<p>オーバーランした場合はビットクリアする</p></li>
+</ul>
+
+<hr>
+
+<p>以上でUARTを用いたシリアル通信のサンプルプログラムの完成です。</p>
+
+    <hr>
+    <div class="pagination btn-group">
+      
+        <a class="btn prev" href="/qt/2013/10/02/QtBuild" title="VisualStudio2012でQtを使うための手順">&larr; Previous</a>
+      
+        <a class="btn" href="/archive.html">Archive</a>
+      
+        <a class="btn next disabled">Next &rarr;</a>
+      
+    </div>
+    <hr>
+    
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_developer = 1;
+    var disqus_shortname = 'jekyllbootstrap'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+  </div>
+  
+  <div class="span4">
+    <section>
+      <h4>Published</h4>
+      <div class="date"><span>24 November 2013</span></div>
+    </section>
+    
+      <section>
+        <h4>Category</h4>
+        <span class="category">
+          SPPBoard
+        </span>
+      </section>
+         
+    
+      <section>
+        <h4>Tags</h4>
+        <ul class="tag_box">
+          
+          
+
+
+  
+     
+    	<li><a href="/tags.html#dsPIC-ref">dsPIC <span>7</span></a></li>
+     
+    	<li><a href="/tags.html#UART-ref">UART <span>1</span></a></li>
+    
+  
+
+
+
+        </ul>
+      </section>
+             
+  </div>
+</div>
+
+
+      </div>
+
+      <footer>
+        <p>&copy; 2013 Daiki Maekawa
+          with help from <a href="http://jekyllbootstrap.com" target="_blank" title="The Definitive Jekyll Blogging Framework">Jekyll Bootstrap</a>
+          and <a href="http://github.com/dhulihan/hooligan" target="_blank">The Hooligan Theme</a>
+        </p>
+      </footer>
+    </div> <!-- /container -->
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="/assets/themes/hooligan/js/jquery.min.js"><\/script>')</script>
+    <script src="/assets/themes/hooligan/bootstrap/js/bootstrap.min.js"></script>
+
+    
+  </body>
+</html>
+

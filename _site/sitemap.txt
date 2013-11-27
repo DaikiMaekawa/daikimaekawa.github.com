@@ -11,6 +11,9 @@ http://DaikiMaekawa.github.io/pages.html
 http://DaikiMaekawa.github.io/sitemap.txt
 http://DaikiMaekawa.github.io/atom.xml
 
+http://DaikiMaekawa.github.io/sppboard/2013/11/24/UART
+http://DaikiMaekawa.github.io/qt/2013/10/02/QtBuild
+http://DaikiMaekawa.github.io/sppboard/2013/09/06/GyroSensor02
 http://DaikiMaekawa.github.io/sppboard/2013/08/30/GyroSensor
 http://DaikiMaekawa.github.io/sppboard/2013/08/26/ServoMotor
 http://DaikiMaekawa.github.io/ros/2013/08/25/RoombaTutorial

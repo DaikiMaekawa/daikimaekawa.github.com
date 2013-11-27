@@ -1,0 +1,663 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>
+      
+        ジャイロセンサの制御方法(続き) - 
+      
+      ゼロから始めるロボットプログラミング入門講座
+    </title>
+    
+    <meta name="author" content="Daiki Maekawa">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    <link href="/assets/themes/hooligan/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/themes/hooligan/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">    
+    <link rel="stylesheet" type="text/css" href="/assets/themes/hooligan/css-social-buttons/css/zocial.stripped.css">
+    <link href="/assets/themes/hooligan/css/pygments.css" rel="stylesheet" type="text/css" media="all">
+    <link href="/assets/themes/hooligan/css/darkstrap.css" rel="stylesheet" type="text/css" media="all">    
+    <link href="/assets/themes/hooligan/css/style.css?body=1" rel="stylesheet" type="text/css" media="all">
+
+    
+    <!-- fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+  </head>
+
+  <body>
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="container">
+          <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>      
+
+
+          <a class="brand" href="/">ゼロから始めるロボットプログラミング入門講座</a>
+
+
+          <div class="nav-collapse">
+            <ul class="nav">
+              
+              
+              
+
+
+  
+    
+      
+    
+  
+    
+      
+    
+  
+    
+      
+    
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/archive.html">Archive</a></li>
+      	
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/tags.html">Tags</a></li>
+      	
+      
+    
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/categories.html">Categories</a></li>
+      	
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/pages.html">Pages</a></li>
+      	
+      
+    
+  
+    
+      
+    
+  
+    
+      
+    
+  
+
+
+
+            </ul>
+            <ul class="nav pull-right social visible-desktop">
+              <li class="divider-vertical"></li>
+              
+                <li>
+                  <a href="https://github.com/DaikiMaekawa" class="zocial github icon" target="_blank">
+                    <span class="hidden-desktop">Github</span>
+                  </a>
+                </li>
+              
+                  
+                                        
+                         
+                                  
+              
+                <li>
+                  <a href="http://feeds.feedburner.com/feedname" class="zocial rss icon" target="_blank">
+                    <span class="hidden-desktop">FeedBurner</span>
+                  </a>
+                </li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="content">
+        
+<div class="page-header">
+  <h1>
+    ジャイロセンサの制御方法(続き) 
+    
+      <small>dsPIC入門講座05</small>
+    
+  </h1>
+</div>
+
+<div class="row">
+  <div class="span8">
+    <hr>
+
+<h2 id="toc_0">開発環境</h2>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">基盤　　　　　　: SPPBoard(dsPIC30F3014使用)  
+コンパイラ　　　: C30  
+ジャイロセンサ　: IMU3000  
+</code></pre></div>
+<hr>
+
+<h2 id="toc_1">はじめに</h2>
+
+<p><a href="http://daikimaekawa.github.io/sppboard/2013/08/30/GyroSensor/" title="I2Cの基礎">以前</a>、ジャイロセンサ(IMU3000)をdsPIC上で制御するための基礎知識について解説しました。</p>
+
+<p>今回はIMU3000の通信仕様について軽く触れた後にdsPIC上で制御するサンプルプログラムを紹介します。</p>
+
+<hr>
+
+<h2 id="toc_2">IMU3000とは?</h2>
+
+<p>3.3V駆動でx, y, z方向の3軸仕様でI2Cインタフェースをサポートしたジャイロセンサです。</p>
+
+<hr>
+
+<h2 id="toc_3">IMU3000の通信方法</h2>
+
+<p>それではIMU3000の仕様書から必要な情報を読み取りましょう。</p>
+
+<h3 id="toc_4">データ送信方式</h3>
+
+<p><img src="/images/IMU3000_send.jpg" alt="send"></p>
+
+<p>記号に関しては以下を参照</p>
+
+<p><img src="/images/IMU3000_terms.jpg" alt="terms"></p>
+
+<h3 id="toc_5">データ受信方式</h3>
+
+<p><img src="/images/IMU3000_read.jpg" alt="read"></p>
+
+<h3 id="toc_6">レジスタ解説</h3>
+
+<p>ジャイロの値を取得する際にアクセスする必要があるレジスタについて解説します。</p>
+
+<p><img src="/images/IMU3000_terms02.jpg" alt="terms"></p>
+
+<p><img src="/images/IMU3000_register.jpg" alt="register"></p>
+
+<ul>
+<li><strong>Register 60</strong></li>
+</ul>
+
+<p>FIFO Dataレジスタにはレジスタ18で有効にされたデータが16ビットで格納されています。</p>
+
+<p><img src="/images/IMU3000_register60.jpg" alt="register60"></p>
+
+<p><img src="/images/IMU3000_register60_terms.jpg" alt="register60"></p>
+
+<ul>
+<li><strong>Register 18</strong></li>
+</ul>
+
+<p>FIFOレジスタに格納するデータを選択する</p>
+
+<p><img src="/images/IMU3000_register18.jpg" alt="register18"></p>
+
+<p>IMU3000のFIFOは最低でも1ワード読み出しできるものがないといけないのでそれを保証するのでFIFO_FOOTERです。</p>
+
+<ul>
+<li><strong>Register 22</strong></li>
+</ul>
+
+<p>ジャイロのフルスケールレンジとサンプルレートを設定します。</p>
+
+<p><img src="/images/IMU3000_register22.jpg" alt="register22"></p>
+
+<p>フィルターとサンプルレートの設定する</p>
+
+<p><img src="/images/IMU3000_register22_spec.jpg" alt="register22"></p>
+
+<p><img src="/images/IMU3000_register22_02.jpg" alt="register22"></p>
+
+<p>フルスケールレンジの設定する</p>
+
+<p><img src="/images/IMU3000_register22_spec_02.jpg" alt="register22"></p>
+
+<ul>
+<li><strong>Register 21</strong></li>
+</ul>
+
+<p>サンプルレートを設定する</p>
+
+<p><img src="/images/IMU3000_register21.jpg" alt="register21"></p>
+
+<p><img src="/images/IMU3000_register21_02.jpg" alt="register21"></p>
+
+<p>(注) 8ビットなので当然、SMPLRT_DIVは0 ~ 255の範囲で設定すること</p>
+
+<ul>
+<li><strong>Register 61</strong></li>
+</ul>
+
+<p>使用したい機能はこのレジスタでリセットする</p>
+
+<p><img src="/images/IMU3000_register61.jpg" alt="register61"></p>
+
+<p><img src="/images/IMU3000_register61_param.jpg" alt="register61"></p>
+
+<p>FIFO_ENとFIFO_RSTとGYRO_RSTは最低限設定する必要があります。</p>
+
+<hr>
+
+<h2 id="toc_7">IMU3000の制御関数を作ろう</h2>
+
+<h3 id="toc_8">初期化関数</h3>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">I2C I2CInitFunc(void){
+    I2C i2c;
+    static short first = TRUE;
+
+    if(first){
+        I2CBRG = 399;
+        I2CCON = 0b1001001001111101;
+        IDLE_I2C;
+        I2CADD = 0x09;
+        first = FALSE;
+    }
+
+    i2c.close = _CloseI2C;
+    i2c.write = WriteI2C;
+    i2c.read  = ReadI2C;
+    i2c.SendDataToIMU = SendDataToIMU;
+    i2c.ReadDataFromIMU = ReadDataFromIMU;
+
+    return i2c;
+}
+</code></pre></div>
+<p><img src="/images/I2C_register_map.jpg" alt="i2c_register_map"></p>
+
+<ul>
+<li><p><strong>I2CBRG = 399</strong></p>
+
+<p>通信速度を設定
+40MHz動作時に100kHzで通信</p></li>
+<li><p><strong>I2CCON = 0b1001001001111101</strong></p>
+
+<p>I2Cの初期設定</p></li>
+<li><p><strong>I2CADD = 0x09</strong></p>
+
+<p>スレーブとしてのアドレスを設定</p></li>
+</ul>
+
+<h3 id="toc_9">データ送信用関数</h3>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">static void SendDataI2C(I2CData data){
+
+    I2CTRN = data;
+    if(!I2CSTATbits.IWCOL){
+        while(I2CSTATbits.TRSTAT);
+        IDLE_I2C;
+    }
+
+    while(I2CSTATbits.TBF);
+    while(I2CSTATbits.ACKSTAT);
+    IDLE_I2C;
+
+}
+</code></pre></div>
+<ul>
+<li><p><strong>I2CTRN = data</strong></p>
+
+<p>データ送信</p></li>
+<li><p><strong>if(!I2CSTATbits.IWCOL)</strong></p>
+
+<p>書き込み衝突なしの場合</p></li>
+<li><p><strong>while(I2CSTATbits.TRSTAT)</strong></p>
+
+<p>送信終了待ち</p></li>
+<li><p><strong>while(I2CSTATbits.TBF)</strong></p>
+
+<p>I2CTRNが空になるまで待つ</p></li>
+<li><p><strong>while(I2CSTATbits.ACKSTAT)</strong></p>
+
+<p>アクノリッジが返って来るまで待つ</p></li>
+</ul>
+
+<h3 id="toc_10">アドレス送信関数</h3>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">static void SendAddressI2C(I2CData address, char AddressType){
+    address = address &lt;&lt; 1;
+    if(AddressType == SEND){
+        address &amp;= 0b11111110;
+    }else{
+        address |= 0b00000001;
+    }
+    SendDataI2C(address);
+
+}
+</code></pre></div>
+<p>スレーブへ送信する場合は最下位ビットを0に
+スレーブから受信する場合は最下位ビットを1にする。</p>
+
+<h3 id="toc_11">IMU3000への送信関数</h3>
+
+<p>この関数は仕様書に書かれている以下の規則に従ったものです。</p>
+
+<p><img src="/images/IMU3000_send.jpg" alt="send"></p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">static void SendDataToIMU(I2CData I2CAddress, I2CData RegisterAddress, I2CData data){
+
+    I2CCONbits.SEN = 1;
+    IDLE_I2C;
+
+    SendAddressI2C(I2CAddress, SEND);
+    SendDataI2C(RegisterAddress);
+    SendDataI2C(data);
+
+    I2CCONbits.PEN = 1;
+    IDLE_I2C;
+
+}
+</code></pre></div>
+<ul>
+<li><p><strong>I2CCONbits.SEN = 1</strong></p>
+
+<p>スタートコンディション発行</p></li>
+<li><p><strong>SendAddressI2C(I2CAddress, SEND)</strong></p>
+
+<p>IMUアドレス+送信要求</p></li>
+<li><p><strong>SendDataI2C(RegisterAddress)</strong></p>
+
+<p>レジスタアドレスを送信</p></li>
+<li><p><strong>SendDataI2C(data)</strong></p>
+
+<p>レジスタへの書き込み</p></li>
+<li><p><strong>I2CCONbits.PEN = 1</strong></p>
+
+<p>ストップコンディション発行</p></li>
+</ul>
+
+<h3 id="toc_12">汎用送信関数</h3>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">static void WriteI2C(I2CData address, I2CData data){
+
+    I2CCONbits.SEN = 1;
+    IDLE_I2C;
+
+    SendAddressI2C(address, SEND);
+    SendDataI2C(data);
+
+    I2CCONbits.PEN = 1;
+    IDEL_I2C;
+
+}
+</code></pre></div>
+<h3 id="toc_13">IMU3000からの受信関数</h3>
+
+<p>この関数は仕様書に書かれている以下の規則に従ったものです。</p>
+
+<p><img src="/images/IMU3000_read.jpg" alt="read"></p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">static I2CData ReadDataFromIMU(I2CData I2CAddress, I2CData RegisterAddress){
+
+    I2CData buffer;
+
+    I2CCONbits.SEN = 1;
+    IDLE_I2C;
+
+    SendAddressI2C(I2CAddress, SEND);
+    SendDataI2C(RegisterAddress);
+
+    I2CCONbits.SEN = 1;
+    IDLE_I2c;
+
+    SendAddressI2C(I2CAddress, READ);
+
+    I2CCONbits.RCEN = 1;
+    while(I2CCONbits.RCEN);
+    I2CSTATbits.I2COV = 0;
+    buffer = I2CRCV;
+    IDLE_I2C;
+
+    I2CCONbits.ACKDT = 1;
+    I2CCONbits.ACKEN = 1;
+    IDLE_I2C;
+
+    I2CCONbits.PEN = 1;
+    IDLE_I2C;
+
+    return buffer;
+
+}
+</code></pre></div>
+<ul>
+<li><p><strong>SendAddressI2C(I2CAddress, SEND)</strong></p>
+
+<p>アドレス+送信要求</p></li>
+<li><p><strong>SendDataI2C(RegisterAddress)</strong></p>
+
+<p>レジスタアドレス送信</p></li>
+<li><p><strong>SendAddressI2C(I2CAddress, READ)</strong></p>
+
+<p>アドレス+受信要求</p></li>
+<li><p><strong>I2CCONbits.RCEN = 1</strong></p>
+
+<p>受信モードを有効化</p></li>
+<li><p><strong>while(I2CCONbits.RCEN)</strong></p>
+
+<p>有効化待ち</p></li>
+<li><p><strong>I2CSTATbits.I2COV = 0</strong></p>
+
+<p>オーバーフローなしにセット</p></li>
+<li><p><strong>buffer = I2CRCV</strong></p>
+
+<p>受信データを読み出し</p></li>
+<li><p><strong>I2CCONbits.ACKDT = 1</strong><br>
+<strong>I2CCONbits.ACKEN = 1</strong>  </p>
+
+<p>NACKを出力</p></li>
+</ul>
+
+<h3 id="toc_14">汎用受信関数</h3>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">static I2CData ReadI2C(I2CData address){
+
+    unsigned char received_data;
+
+    I2CCONbits.SEN = 1;
+    IDLE_I2C;
+
+    SendAddressI2C(address, READ);
+
+    I2CCONbits.RCEN = 1;
+    while(I2CCONbits.RCEN);
+    I2CSTATbits.I2COV = 0;
+    received_data = I2CRCV;
+    IDLE_I2C;
+
+    I2CCONbits.ACKDT = 1;
+    I2CCONbits.ACKEN = 1;
+    IDLE_I2C;
+
+    I2CCONbits.PEN = 1;
+    IDLE_I2C;
+
+    return received_data;
+
+}
+</code></pre></div>
+<hr>
+
+<h2 id="toc_15">IMU3000の制御関数を使ってみよう</h2>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">int main(void){
+
+    int buffer[8];
+    int GyroX;
+    int i;
+    TRISA = 0x800;
+    TRISB = 0x1C7;
+    TRISC = 0x6000;
+    TRISD = 0x200;
+    TRISF = 0x0000;
+
+    I2C i2c = I2CInitFunc();
+    Lcd lcd = LcdInitFunc();
+
+    i2c.SendDataToIMU(GYRO, 0x12, 0x71);
+    i2c.SendDataToIMU(GYRO, 0x16, 0x09);
+    i2c.SendDataToIMU(GYRO, 0x15, 0x07);
+    i2c.SendDataToIMU(GYRO, 0x3D, 0x43);
+
+    while(1){
+        for(i=0; i &lt; 8; i++) buffer[i] = (int)i2c.ReadDataFromIMU(GYRO, 0x3C);
+        GyroX = buffer[0] &lt;&lt; 8 | buffer[1];
+
+        lcd.NumPuts(GyroX);
+        wait_msec(1000);
+        lcd.clear();
+        wait_msec(1000);
+    }
+
+    return 0;
+}
+</code></pre></div>
+<ul>
+<li><p><strong>GYRO</strong></p>
+
+<p>IMU3000のアドレス</p>
+
+<p>0x68であらかじめ定義している</p></li>
+<li><p><strong>i2c.SendDataToIMU(GYRO, 0x12, 0x71)</strong></p>
+
+<p>FIFO Enable (GyroX + GyroY + GyroZ + FIFO_FOOTER)</p></li>
+<li><p><strong>i2c.SendDataToIMU(GYRO, 0x16, 0x09)</strong></p>
+
+<p>DLPF, Full scale(500 deg/sec, LowPass-&gt;188Hz, ADサンプルレート1kHz)</p></li>
+<li><p><strong>i2c.SendDataToIMU(GYRO, 0x15, 0x07)</strong></p>
+
+<p>SampleRate(125Hz)</p></li>
+<li><p><strong>i2c.SendDataToIMU(GYRO, 0x3D, 0x43)</strong></p>
+
+<p>User Control (FIFO_EN = 1, FIFO_RST = 1, GYRO_RST = 1)</p></li>
+<li><p><strong>for(i=0; i &lt; 8; i++) buffer[i] = (int)i2c.ReadDataFromIMU(GYRO, 0x3C)</strong></p>
+
+<p>FIFOレジスタからX, Y, Z, FIFO_FOOTERを取得</p></li>
+<li><p><strong>lcd.NumPuts(GyroX)</strong></p>
+
+<p>X軸の値をLCDに表示</p></li>
+<li><p><strong>lcd.clear()</strong></p>
+
+<p>LCDの表示をクリア</p></li>
+</ul>
+
+<hr>
+
+<p>以上でジャイロセンサから取得したX軸の値をLCDに表示するサンプログラムの完成です。</p>
+
+    <hr>
+    <div class="pagination btn-group">
+      
+        <a class="btn prev" href="/sppboard/2013/08/30/GyroSensor" title="ジャイロセンサの制御方法">&larr; Previous</a>
+      
+        <a class="btn" href="/archive.html">Archive</a>
+      
+        <a class="btn next" href="/qt/2013/10/02/QtBuild" title="VisualStudio2012でQtを使うための手順">Next &rarr;</a>
+      
+    </div>
+    <hr>
+    
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_developer = 1;
+    var disqus_shortname = 'jekyllbootstrap'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+  </div>
+  
+  <div class="span4">
+    <section>
+      <h4>Published</h4>
+      <div class="date"><span>06 September 2013</span></div>
+    </section>
+    
+      <section>
+        <h4>Category</h4>
+        <span class="category">
+          SPPBoard
+        </span>
+      </section>
+         
+    
+      <section>
+        <h4>Tags</h4>
+        <ul class="tag_box">
+          
+          
+
+
+  
+     
+    	<li><a href="/tags.html#dsPIC-ref">dsPIC <span>7</span></a></li>
+     
+    	<li><a href="/tags.html#I2C-ref">I2C <span>2</span></a></li>
+    
+  
+
+
+
+        </ul>
+      </section>
+             
+  </div>
+</div>
+
+
+      </div>
+
+      <footer>
+        <p>&copy; 2013 Daiki Maekawa
+          with help from <a href="http://jekyllbootstrap.com" target="_blank" title="The Definitive Jekyll Blogging Framework">Jekyll Bootstrap</a>
+          and <a href="http://github.com/dhulihan/hooligan" target="_blank">The Hooligan Theme</a>
+        </p>
+      </footer>
+    </div> <!-- /container -->
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="/assets/themes/hooligan/js/jquery.min.js"><\/script>')</script>
+    <script src="/assets/themes/hooligan/bootstrap/js/bootstrap.min.js"></script>
+
+    
+  </body>
+</html>
+

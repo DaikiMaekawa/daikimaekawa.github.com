@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <title>
       
-        Categories - 
+        VisualStudio2012でQtを使うための手順 - 
       
       ゼロから始めるロボットプログラミング入門講座
     </title>
@@ -97,7 +97,7 @@
     
       
       	
-      	<li class="active"><a href="/categories.html" class="active">Categories</a></li>
+      	<li><a href="/categories.html">Categories</a></li>
       	
       
     
@@ -151,152 +151,103 @@
     <div class="container">
       <div class="content">
         
-<div class="page-header-wrapper">
-	<div class="page-header">
-  		<h1>Categories </h1>
-  	</div>
+<div class="page-header">
+  <h1>
+    VisualStudio2012でQtを使うための手順 
+    
+  </h1>
 </div>
 
 <div class="row">
-  <div class="span12">
+  <div class="span8">
+    <p>QtのVisualStudio2012向けバイナリはまだ存在してしないのでソースをビルドする必要があります。</p>
+
+<p>Qtのソースをダウンロード、展開してC:\Qt4.8.5に移動し、名前を変更します</p>
+
+<p><a href="http://stackoverflow.com/questions/12113400/compiling-qt-4-8-x-for-visual-studio-2012/14928303#14928303">HashSet.hをダウンロード</a></p>
+
+<p>ディレクトリのsrc\3rdparty\webkit\Source\JavaScriptCore\wtfにあるHashSet.hと置き換えます。</p>
+
+<p>「VS2012 x86 Native Tools コマンドプロンプト」を開き以下のコマンドを実行します。</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">cd C:\Qt4.8.5
+set QT_HOME=C:\Qt4.8.5
+set PATH=%QT_HOME%\bin;%PATH%
+configure -mp -opensource -nomake demos -nomake examples -platform win32-msvc2012
+nmake
+nmake clean
+</code></pre></div>
+<p>(注)nmakeには数時間かかる</p>
+
+<p>以上でVisualStudio2012でQtを使うための解説を終わります。</p>
+
+    <hr>
+    <div class="pagination btn-group">
+      
+        <a class="btn prev" href="/sppboard/2013/09/06/GyroSensor02" title="ジャイロセンサの制御方法(続き)">&larr; Previous</a>
+      
+        <a class="btn" href="/archive.html">Archive</a>
+      
+        <a class="btn next" href="/sppboard/2013/11/24/UART" title="XBeeを用いた無線通信">Next &rarr;</a>
+      
+    </div>
+    <hr>
     
 
-<ul class="tag_box inline">
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_developer = 1;
+    var disqus_shortname = 'jekyllbootstrap'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+  </div>
   
-  
+  <div class="span4">
+    <section>
+      <h4>Published</h4>
+      <div class="date"><span>02 October 2013</span></div>
+    </section>
+    
+      <section>
+        <h4>Category</h4>
+        <span class="category">
+          Qt
+        </span>
+      </section>
+         
+    
+      <section>
+        <h4>Tags</h4>
+        <ul class="tag_box">
+          
+          
 
 
   
      
-    	<li><a href="/categories.html#qt-ref">
-    		qt <span>1</span>
-    	</a></li>
+    	<li><a href="/tags.html#Qt-ref">Qt <span>1</span></a></li>
      
-    	<li><a href="/categories.html#ros-ref">
-    		ros <span>1</span>
-    	</a></li>
-     
-    	<li><a href="/categories.html#sppboard-ref">
-    		sppboard <span>7</span>
-    	</a></li>
-    
-  
-
-
-</ul>
-
-
- 
-  <h2 id="qt-ref">qt</h2>
-  <ul>
-      
-    
-
-
-  
-    
-      
-      	
-      	<li><a href="/qt/2013/10/02/QtBuild">VisualStudio2012でQtを使うための手順</a></li>
-      	
-      
+    	<li><a href="/tags.html#VisualStudio-ref">VisualStudio <span>1</span></a></li>
     
   
 
 
 
-  </ul>
- 
-  <h2 id="ros-ref">ros</h2>
-  <ul>
-      
-    
-
-
-  
-    
-      
-      	
-      	<li><a href="/ros/2013/08/25/RoombaTutorial">RoombaのROSドライバをソースからビルドして使ってみる</a></li>
-      	
-      
-    
-  
-
-
-
-  </ul>
- 
-  <h2 id="sppboard-ref">sppboard</h2>
-  <ul>
-      
-    
-
-
-  
-    
-      
-      	
-      	<li><a href="/sppboard/2013/11/24/UART">XBeeを用いた無線通信</a></li>
-      	
-      
-    
-  
-    
-      
-      	
-      	<li><a href="/sppboard/2013/09/06/GyroSensor02">ジャイロセンサの制御方法(続き)</a></li>
-      	
-      
-    
-  
-    
-      
-      	
-      	<li><a href="/sppboard/2013/08/30/GyroSensor">ジャイロセンサの制御方法</a></li>
-      	
-      
-    
-  
-    
-      
-      	
-      	<li><a href="/sppboard/2013/08/26/ServoMotor">サーボモータの制御方法</a></li>
-      	
-      
-    
-  
-    
-      
-      	
-      	<li><a href="/sppboard/2013/08/19/DCMotor">DCモータのPWM制御</a></li>
-      	
-      
-    
-  
-    
-      
-      	
-      	<li><a href="/sppboard/2013/08/18/LCD">LCDの制御方法</a></li>
-      	
-      
-    
-  
-    
-      
-      	
-      	<li><a href="/sppboard/2011/05/10/SPPBoard">教育用マイコンボードの開発</a></li>
-      	
-      
-    
-  
-
-
-
-  </ul>
-
-
-
+        </ul>
+      </section>
+             
   </div>
 </div>
 

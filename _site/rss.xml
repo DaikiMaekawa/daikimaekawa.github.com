@@ -5,10 +5,723 @@
         <description>ゼロから始めるロボットプログラミング入門講座 - Daiki Maekawa</description>
         <link>http://DaikiMaekawa.github.io</link>
         <link>http://DaikiMaekawa.github.io</link>
-        <lastBuildDate>2013-08-30T16:30:33+09:00</lastBuildDate>
-        <pubDate>2013-08-30T16:30:33+09:00</pubDate>
+        <lastBuildDate>2013-11-27T18:42:27+09:00</lastBuildDate>
+        <pubDate>2013-11-27T18:42:27+09:00</pubDate>
         <ttl>1800</ttl>
 
+
+        <item>
+                <title>XBeeを用いた無線通信</title>
+                <description>&lt;hr&gt;
+
+&lt;h2 id=&quot;toc_0&quot;&gt;開発環境&lt;/h2&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;基盤　　　　: SPPBoard(dsPIC30F3014使用)
+コンパイラ　: C30
+XBee        : TODO
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;hr&gt;
+
+&lt;h2 id=&quot;toc_1&quot;&gt;はじめに&lt;/h2&gt;
+
+&lt;p&gt;XBeeの通信方式はシリアル通信なのでdsPICのUARTに直結することができます。&lt;/p&gt;
+
+&lt;p&gt;そこで、今回はXBeeによるdsPIC/PC間通信を題材にUARTを用いてシリアル通信を実装する方法について解説したいと思います。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;dsPIC - XBee(A) &amp;lt;--&amp;gt; XBee(B) - PC
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;hr&gt;
+
+&lt;h2 id=&quot;toc_2&quot;&gt;UARTとは&lt;/h2&gt;
+
+&lt;p&gt;単位時間あたり1bitずつ送られてくるシリアルデータをその都度シフトして適当なパラレルデータに変換する回路のことです。&lt;/p&gt;
+
+&lt;h2 id=&quot;toc_3&quot;&gt;回路の基礎知識&lt;/h2&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;RX: 受信
+TX: 送信
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3 id=&quot;toc_4&quot;&gt;dsPIC側のXBee&lt;/h3&gt;
+
+&lt;p&gt;UART2の端子を使用します。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/UART_pin.jpg&quot; alt=&quot;UART_pin&quot;&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;toc_5&quot;&gt;PC側のXBee&lt;/h3&gt;
+
+&lt;p&gt;PCからXBeeへの接続方法はUSBで接続するだけで済むようにしたいと思います。&lt;/p&gt;
+
+&lt;p&gt;そのために今回はFT232RL_MODULEという変換モジュールを使用します。&lt;/p&gt;
+
+&lt;p&gt;これはUSBの信号をXBeeに接続可能なTLLレベルに変換してくれるものです。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;FT232RL_MODULE  &amp;lt;--&amp;gt;  XBee
+1  TXD          &amp;lt;--&amp;gt;  3  DIN/-CONFIG
+5  RXD          &amp;lt;--&amp;gt;  2  DOUT
+24 GND          &amp;lt;--&amp;gt;  10 GND
+19 3V3          &amp;lt;--&amp;gt;  1  VCC
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;hr&gt;
+
+&lt;h2 id=&quot;toc_6&quot;&gt;XBeeの設定&lt;/h2&gt;
+
+&lt;h3 id=&quot;toc_7&quot;&gt;PC側のXBee&lt;/h3&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;ボーレート  115200bps
+FunctionSet ZIGBEECOORDINATOR AT
+PANID       500
+DH          13A200
+DL          406E8886
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3 id=&quot;toc_8&quot;&gt;dsPIC側のXBee&lt;/h3&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;ボーレート  115200bps
+FunctionSet ZIGBEEROUTER AT
+PANID       500
+DH          13A200
+DL          40625D41
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;hr&gt;
+
+&lt;h2 id=&quot;toc_9&quot;&gt;サンプルプログラム&lt;/h2&gt;
+
+&lt;p&gt;C30コンパイラのバグでUARTで使用するピンはこちら側で定義する必要があります。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;#define UART_RX_TX 0xFBE7
+#define UART_ALTRX_ALTTX 0xFFE7
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;(注)dsPIC30F3014はuart.hに上の定義がありません。&lt;/p&gt;
+
+&lt;h3 id=&quot;toc_10&quot;&gt;送信完了待ち関数&lt;/h3&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;void WaitSendString(const short UartChannel){
+    switch(UartChannel){
+        case UART1:
+            while(BusyUART1());
+            break;
+        case UART2:
+            while(BusyUART2());
+            break;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;BusyUARTx()&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;送信中なら1、送信完了なら0を返す&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;toc_11&quot;&gt;データ送信関数&lt;/h3&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;void SendString(const short UartChannel, unsigned int *string){
+    switch(UartChannel){
+        case UART1:
+            putsUART1(string);
+            break;
+        case UART2:
+            putsUART2(string);
+            break;
+    }
+    WaitSendString(UartChannel);
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3 id=&quot;toc_12&quot;&gt;受信完了待ち関数&lt;/h3&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;void WaitGetString(const short UartChannel){
+    switch(UartChannel){
+        case UART1:
+            while(!DataRdyUART1());
+            break;
+        case UART2:
+            while(!DataRdyUART2());
+            break;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;DataRdyUARTx()&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;受信中なら0、受信完了なら1を返す&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;toc_13&quot;&gt;コマンド受信関数&lt;/h3&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;char *GetCommand(const short UartChannel){
+    unsigned char moji;
+    int count = 0;
+    static char string[MAX_UARTWORD];
+
+    WaitGetString(UartChannel);
+
+    switch(UartChannel){
+        case UART1:
+            moji = ReadUART1();
+            break;
+        case UART2:
+            moji = ReadUART2();
+            break;
+    }
+
+    while((moji != &amp;#39;\r&amp;#39;) &amp;amp;&amp;amp; (count &amp;lt; MAX_UARTWORD)){
+        string[count] = moji;
+        count++;
+        WaitGetString(UartChannel);
+        switch(UartChannel){
+            case UART1:
+                moji = ReadUART1();
+                break;
+            case UART2:
+                moji = ReadUART2();
+                break;
+        }
+    }
+
+    string[count] = 0x00;
+    return string;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;ReadUARTx()&lt;/strong&gt;
+1文字の受信関数&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;toc_14&quot;&gt;UART初期化関数&lt;/h3&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;void UartInitFunc(void){
+    unsigned int config1 = UART_EN &amp;amp; UART_IDLE_CON &amp;amp; UART_ALTRX_ALTTX &amp;amp; 
+        UART_NO_PAR_8BIT &amp;amp; UART_1STOPBIT &amp;amp; UART_DIS_WAKE &amp;amp; UART_DIS_LOOPBACK &amp;amp; UART_DIS_ABAUD;
+
+    unsigned int config2 = UART_INT_TX_BUF_EMPTY &amp;amp; UART_TX_PIN_NORMAL &amp;amp; UART_TX_ENABLE &amp;amp; 
+        UART_INT_RX_CHAR &amp;amp; UART_ADR_DETECT_DIS &amp;amp; UART_RX_OVERRUN_CLEAR;
+
+    OpenUART1(config1, config2, 10);
+    OpenUART2(config1, config2, 10); //115kbps
+
+    /*受信割り込み禁止、送信割り込み禁止*/
+    ConfigIntUART1(UART_RX_INT_DIS &amp;amp; UART_TX_INT_DIS);
+    ConfigIntUART2(UART_RX_INT_DIS &amp;amp; UART_TX_INT_DIS);
+
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;OpenUARTx(unsigned int config1, unsigned int config2, unsigned int ubrg)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;ubrg(UxBRG) = FCY / (16 * BaudRate) - 1&lt;/p&gt;
+
+&lt;p&gt;FCYとはFOSCを1/2倍したものです。&lt;/p&gt;
+
+&lt;p&gt;FOSCは実際の命令周波数なので、クロック生成部分で出力される周波数の1/2となります。(PICは2つのクロックで1個の命令が実行されるため)&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;システムクロック80MHzで115kbpsのボーレートを得たい場合
+UxBRG = 20000 / (16 * 115) - 1
+UxBRG = 0.987
+ubrgに10を渡せば良いことがわかります。
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;UART_EN or UART_DIS&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;UARTモジュールを有効/無効&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;UART_IDLE_CON or UART_IDLE_STOP&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;アイドル中動作継続/停止&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;UART_ALTRX_ALTTX or UART_RX_TX&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;代替/通常ピンを使用&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;UART_NO_PAR_9BIT or UART_ODD_PAR_8BIT or UART_EVEN_PAR_8BIT or UART_NO_PAR_8BIT&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;9ビットデータ + パリティなし&lt;/p&gt;
+
+&lt;p&gt;8ビットデータ + 奇数パリティ&lt;/p&gt;
+
+&lt;p&gt;8ビットデータ + 偶数パリティ&lt;/p&gt;
+
+&lt;p&gt;8ビットデータ + パリティなし&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;念のためパリティビットについての復習
+
+パリティビットとはデータが正常に送られたかを検査するために使用されるビットです。
+偶数パリティ、奇数パリティの2種類が存在し、これは送信するデータの1の数が偶数または奇数になるようにパリティビットで調整されます。
+
+(例)
+1000 0010 &amp;#39;A&amp;#39;というASCIIコードを送信する
+
+偶数パリティ
+1000 00100
+
+奇数パリティ
+1000 00101
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;UART_2STOPBITS or UART_1STOPBIT&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;ストップビット長を2ビット/1ビットに設定&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;UART_DIS_WAKE&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;SLEEP中にスタートビットが来た時のウェイクアップを有効化&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;UART_EN_LOOPBACK or UART_DIS_LOOPBACK&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;ループバックモード(送信したデータを自分に戻してテストする機能)を有効/無効&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;UART_EN_ABAUD or UART_DIS_ABAUD&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;ボーレートの自動検出を有効/無効&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;UART_INT_TX_BUF_EMPTY or UART_INT_TX&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;送信バッファが完全に空になったら/空きがあれば割り込む&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;UART_TX_PIN_NORMAL or UART_TX_PIN_LOW&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;通常動作/ブレーク&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;ブレーク信号とは中断信号のことです。
+通信を強制的に中断して初期状態に戻したりする際に用いられます。
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;UART_TX_ENABLE or UART_TX_DISABLE&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;送信有効/無効&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;UART_INT_RX_CHAR&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;文字を受信する度に割り込む&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;UART_ADR_DETECT_DIS&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;アドレス文字を検出しない&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;UART_RX_OVERRUN_CLEAR&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;オーバーランした場合はビットクリアする&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr&gt;
+
+&lt;p&gt;以上でUARTを用いたシリアル通信のサンプルプログラムの完成です。&lt;/p&gt;
+</description>
+                <link>http://DaikiMaekawa.github.io/sppboard/2013/11/24/UART</link>
+                <guid>http://DaikiMaekawa.github.io/sppboard/2013/11/24/UART</guid>
+                <pubDate>2013-11-24T00:00:00+09:00</pubDate>
+        </item>
+
+        <item>
+                <title>VisualStudio2012でQtを使うための手順</title>
+                <description>&lt;p&gt;QtのVisualStudio2012向けバイナリはまだ存在してしないのでソースをビルドする必要があります。&lt;/p&gt;
+
+&lt;p&gt;Qtのソースをダウンロード、展開してC:\Qt4.8.5に移動し、名前を変更します&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://stackoverflow.com/questions/12113400/compiling-qt-4-8-x-for-visual-studio-2012/14928303#14928303&quot;&gt;HashSet.hをダウンロード&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;ディレクトリのsrc\3rdparty\webkit\Source\JavaScriptCore\wtfにあるHashSet.hと置き換えます。&lt;/p&gt;
+
+&lt;p&gt;「VS2012 x86 Native Tools コマンドプロンプト」を開き以下のコマンドを実行します。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;cd C:\Qt4.8.5
+set QT_HOME=C:\Qt4.8.5
+set PATH=%QT_HOME%\bin;%PATH%
+configure -mp -opensource -nomake demos -nomake examples -platform win32-msvc2012
+nmake
+nmake clean
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;(注)nmakeには数時間かかる&lt;/p&gt;
+
+&lt;p&gt;以上でVisualStudio2012でQtを使うための解説を終わります。&lt;/p&gt;
+</description>
+                <link>http://DaikiMaekawa.github.io/qt/2013/10/02/QtBuild</link>
+                <guid>http://DaikiMaekawa.github.io/qt/2013/10/02/QtBuild</guid>
+                <pubDate>2013-10-02T00:00:00+09:00</pubDate>
+        </item>
+
+        <item>
+                <title>ジャイロセンサの制御方法(続き)</title>
+                <description>&lt;hr&gt;
+
+&lt;h2 id=&quot;toc_0&quot;&gt;開発環境&lt;/h2&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;基盤　　　　　　: SPPBoard(dsPIC30F3014使用)  
+コンパイラ　　　: C30  
+ジャイロセンサ　: IMU3000  
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;hr&gt;
+
+&lt;h2 id=&quot;toc_1&quot;&gt;はじめに&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://daikimaekawa.github.io/sppboard/2013/08/30/GyroSensor/&quot; title=&quot;I2Cの基礎&quot;&gt;以前&lt;/a&gt;、ジャイロセンサ(IMU3000)をdsPIC上で制御するための基礎知識について解説しました。&lt;/p&gt;
+
+&lt;p&gt;今回はIMU3000の通信仕様について軽く触れた後にdsPIC上で制御するサンプルプログラムを紹介します。&lt;/p&gt;
+
+&lt;hr&gt;
+
+&lt;h2 id=&quot;toc_2&quot;&gt;IMU3000とは?&lt;/h2&gt;
+
+&lt;p&gt;3.3V駆動でx, y, z方向の3軸仕様でI2Cインタフェースをサポートしたジャイロセンサです。&lt;/p&gt;
+
+&lt;hr&gt;
+
+&lt;h2 id=&quot;toc_3&quot;&gt;IMU3000の通信方法&lt;/h2&gt;
+
+&lt;p&gt;それではIMU3000の仕様書から必要な情報を読み取りましょう。&lt;/p&gt;
+
+&lt;h3 id=&quot;toc_4&quot;&gt;データ送信方式&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMU3000_send.jpg&quot; alt=&quot;send&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;記号に関しては以下を参照&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMU3000_terms.jpg&quot; alt=&quot;terms&quot;&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;toc_5&quot;&gt;データ受信方式&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMU3000_read.jpg&quot; alt=&quot;read&quot;&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;toc_6&quot;&gt;レジスタ解説&lt;/h3&gt;
+
+&lt;p&gt;ジャイロの値を取得する際にアクセスする必要があるレジスタについて解説します。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMU3000_terms02.jpg&quot; alt=&quot;terms&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMU3000_register.jpg&quot; alt=&quot;register&quot;&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Register 60&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;FIFO Dataレジスタにはレジスタ18で有効にされたデータが16ビットで格納されています。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMU3000_register60.jpg&quot; alt=&quot;register60&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMU3000_register60_terms.jpg&quot; alt=&quot;register60&quot;&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Register 18&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;FIFOレジスタに格納するデータを選択する&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMU3000_register18.jpg&quot; alt=&quot;register18&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;IMU3000のFIFOは最低でも1ワード読み出しできるものがないといけないのでそれを保証するのでFIFO_FOOTERです。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Register 22&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;ジャイロのフルスケールレンジとサンプルレートを設定します。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMU3000_register22.jpg&quot; alt=&quot;register22&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;フィルターとサンプルレートの設定する&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMU3000_register22_spec.jpg&quot; alt=&quot;register22&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMU3000_register22_02.jpg&quot; alt=&quot;register22&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;フルスケールレンジの設定する&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMU3000_register22_spec_02.jpg&quot; alt=&quot;register22&quot;&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Register 21&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;サンプルレートを設定する&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMU3000_register21.jpg&quot; alt=&quot;register21&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMU3000_register21_02.jpg&quot; alt=&quot;register21&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;(注) 8ビットなので当然、SMPLRT_DIVは0 ~ 255の範囲で設定すること&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Register 61&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;使用したい機能はこのレジスタでリセットする&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMU3000_register61.jpg&quot; alt=&quot;register61&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMU3000_register61_param.jpg&quot; alt=&quot;register61&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;FIFO_ENとFIFO_RSTとGYRO_RSTは最低限設定する必要があります。&lt;/p&gt;
+
+&lt;hr&gt;
+
+&lt;h2 id=&quot;toc_7&quot;&gt;IMU3000の制御関数を作ろう&lt;/h2&gt;
+
+&lt;h3 id=&quot;toc_8&quot;&gt;初期化関数&lt;/h3&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;I2C I2CInitFunc(void){
+    I2C i2c;
+    static short first = TRUE;
+
+    if(first){
+        I2CBRG = 399;
+        I2CCON = 0b1001001001111101;
+        IDLE_I2C;
+        I2CADD = 0x09;
+        first = FALSE;
+    }
+
+    i2c.close = _CloseI2C;
+    i2c.write = WriteI2C;
+    i2c.read  = ReadI2C;
+    i2c.SendDataToIMU = SendDataToIMU;
+    i2c.ReadDataFromIMU = ReadDataFromIMU;
+
+    return i2c;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;img src=&quot;/images/I2C_register_map.jpg&quot; alt=&quot;i2c_register_map&quot;&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;I2CBRG = 399&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;通信速度を設定
+40MHz動作時に100kHzで通信&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;I2CCON = 0b1001001001111101&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;I2Cの初期設定&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;I2CADD = 0x09&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;スレーブとしてのアドレスを設定&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;toc_9&quot;&gt;データ送信用関数&lt;/h3&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;static void SendDataI2C(I2CData data){
+
+    I2CTRN = data;
+    if(!I2CSTATbits.IWCOL){
+        while(I2CSTATbits.TRSTAT);
+        IDLE_I2C;
+    }
+
+    while(I2CSTATbits.TBF);
+    while(I2CSTATbits.ACKSTAT);
+    IDLE_I2C;
+
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;I2CTRN = data&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;データ送信&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;if(!I2CSTATbits.IWCOL)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;書き込み衝突なしの場合&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;while(I2CSTATbits.TRSTAT)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;送信終了待ち&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;while(I2CSTATbits.TBF)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;I2CTRNが空になるまで待つ&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;while(I2CSTATbits.ACKSTAT)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;アクノリッジが返って来るまで待つ&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;toc_10&quot;&gt;アドレス送信関数&lt;/h3&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;static void SendAddressI2C(I2CData address, char AddressType){
+    address = address &amp;lt;&amp;lt; 1;
+    if(AddressType == SEND){
+        address &amp;amp;= 0b11111110;
+    }else{
+        address |= 0b00000001;
+    }
+    SendDataI2C(address);
+
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;スレーブへ送信する場合は最下位ビットを0に
+スレーブから受信する場合は最下位ビットを1にする。&lt;/p&gt;
+
+&lt;h3 id=&quot;toc_11&quot;&gt;IMU3000への送信関数&lt;/h3&gt;
+
+&lt;p&gt;この関数は仕様書に書かれている以下の規則に従ったものです。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMU3000_send.jpg&quot; alt=&quot;send&quot;&gt;&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;static void SendDataToIMU(I2CData I2CAddress, I2CData RegisterAddress, I2CData data){
+
+    I2CCONbits.SEN = 1;
+    IDLE_I2C;
+
+    SendAddressI2C(I2CAddress, SEND);
+    SendDataI2C(RegisterAddress);
+    SendDataI2C(data);
+
+    I2CCONbits.PEN = 1;
+    IDLE_I2C;
+
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;I2CCONbits.SEN = 1&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;スタートコンディション発行&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;SendAddressI2C(I2CAddress, SEND)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;IMUアドレス+送信要求&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;SendDataI2C(RegisterAddress)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;レジスタアドレスを送信&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;SendDataI2C(data)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;レジスタへの書き込み&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;I2CCONbits.PEN = 1&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;ストップコンディション発行&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;toc_12&quot;&gt;汎用送信関数&lt;/h3&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;static void WriteI2C(I2CData address, I2CData data){
+
+    I2CCONbits.SEN = 1;
+    IDLE_I2C;
+
+    SendAddressI2C(address, SEND);
+    SendDataI2C(data);
+
+    I2CCONbits.PEN = 1;
+    IDEL_I2C;
+
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3 id=&quot;toc_13&quot;&gt;IMU3000からの受信関数&lt;/h3&gt;
+
+&lt;p&gt;この関数は仕様書に書かれている以下の規則に従ったものです。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/IMU3000_read.jpg&quot; alt=&quot;read&quot;&gt;&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;static I2CData ReadDataFromIMU(I2CData I2CAddress, I2CData RegisterAddress){
+
+    I2CData buffer;
+
+    I2CCONbits.SEN = 1;
+    IDLE_I2C;
+
+    SendAddressI2C(I2CAddress, SEND);
+    SendDataI2C(RegisterAddress);
+
+    I2CCONbits.SEN = 1;
+    IDLE_I2c;
+
+    SendAddressI2C(I2CAddress, READ);
+
+    I2CCONbits.RCEN = 1;
+    while(I2CCONbits.RCEN);
+    I2CSTATbits.I2COV = 0;
+    buffer = I2CRCV;
+    IDLE_I2C;
+
+    I2CCONbits.ACKDT = 1;
+    I2CCONbits.ACKEN = 1;
+    IDLE_I2C;
+
+    I2CCONbits.PEN = 1;
+    IDLE_I2C;
+
+    return buffer;
+
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;SendAddressI2C(I2CAddress, SEND)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;アドレス+送信要求&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;SendDataI2C(RegisterAddress)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;レジスタアドレス送信&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;SendAddressI2C(I2CAddress, READ)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;アドレス+受信要求&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;I2CCONbits.RCEN = 1&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;受信モードを有効化&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;while(I2CCONbits.RCEN)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;有効化待ち&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;I2CSTATbits.I2COV = 0&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;オーバーフローなしにセット&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;buffer = I2CRCV&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;受信データを読み出し&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;I2CCONbits.ACKDT = 1&lt;/strong&gt;&lt;br&gt;
+&lt;strong&gt;I2CCONbits.ACKEN = 1&lt;/strong&gt;  &lt;/p&gt;
+
+&lt;p&gt;NACKを出力&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;toc_14&quot;&gt;汎用受信関数&lt;/h3&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;static I2CData ReadI2C(I2CData address){
+
+    unsigned char received_data;
+
+    I2CCONbits.SEN = 1;
+    IDLE_I2C;
+
+    SendAddressI2C(address, READ);
+
+    I2CCONbits.RCEN = 1;
+    while(I2CCONbits.RCEN);
+    I2CSTATbits.I2COV = 0;
+    received_data = I2CRCV;
+    IDLE_I2C;
+
+    I2CCONbits.ACKDT = 1;
+    I2CCONbits.ACKEN = 1;
+    IDLE_I2C;
+
+    I2CCONbits.PEN = 1;
+    IDLE_I2C;
+
+    return received_data;
+
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;hr&gt;
+
+&lt;h2 id=&quot;toc_15&quot;&gt;IMU3000の制御関数を使ってみよう&lt;/h2&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;int main(void){
+
+    int buffer[8];
+    int GyroX;
+    int i;
+    TRISA = 0x800;
+    TRISB = 0x1C7;
+    TRISC = 0x6000;
+    TRISD = 0x200;
+    TRISF = 0x0000;
+
+    I2C i2c = I2CInitFunc();
+    Lcd lcd = LcdInitFunc();
+
+    i2c.SendDataToIMU(GYRO, 0x12, 0x71);
+    i2c.SendDataToIMU(GYRO, 0x16, 0x09);
+    i2c.SendDataToIMU(GYRO, 0x15, 0x07);
+    i2c.SendDataToIMU(GYRO, 0x3D, 0x43);
+
+    while(1){
+        for(i=0; i &amp;lt; 8; i++) buffer[i] = (int)i2c.ReadDataFromIMU(GYRO, 0x3C);
+        GyroX = buffer[0] &amp;lt;&amp;lt; 8 | buffer[1];
+
+        lcd.NumPuts(GyroX);
+        wait_msec(1000);
+        lcd.clear();
+        wait_msec(1000);
+    }
+
+    return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;GYRO&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;IMU3000のアドレス&lt;/p&gt;
+
+&lt;p&gt;0x68であらかじめ定義している&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;i2c.SendDataToIMU(GYRO, 0x12, 0x71)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;FIFO Enable (GyroX + GyroY + GyroZ + FIFO_FOOTER)&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;i2c.SendDataToIMU(GYRO, 0x16, 0x09)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;DLPF, Full scale(500 deg/sec, LowPass-&amp;gt;188Hz, ADサンプルレート1kHz)&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;i2c.SendDataToIMU(GYRO, 0x15, 0x07)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;SampleRate(125Hz)&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;i2c.SendDataToIMU(GYRO, 0x3D, 0x43)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;User Control (FIFO_EN = 1, FIFO_RST = 1, GYRO_RST = 1)&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;for(i=0; i &amp;lt; 8; i++) buffer[i] = (int)i2c.ReadDataFromIMU(GYRO, 0x3C)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;FIFOレジスタからX, Y, Z, FIFO_FOOTERを取得&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;lcd.NumPuts(GyroX)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;X軸の値をLCDに表示&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;lcd.clear()&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;LCDの表示をクリア&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr&gt;
+
+&lt;p&gt;以上でジャイロセンサから取得したX軸の値をLCDに表示するサンプログラムの完成です。&lt;/p&gt;
+</description>
+                <link>http://DaikiMaekawa.github.io/sppboard/2013/09/06/GyroSensor02</link>
+                <guid>http://DaikiMaekawa.github.io/sppboard/2013/09/06/GyroSensor02</guid>
+                <pubDate>2013-09-06T00:00:00+09:00</pubDate>
+        </item>
 
         <item>
                 <title>ジャイロセンサの制御方法</title>
