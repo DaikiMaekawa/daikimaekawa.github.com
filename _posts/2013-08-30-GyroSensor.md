@@ -3,7 +3,7 @@ title: "ジャイロセンサの制御方法"
 layout: post
 category : SPPBoard
 tagline: "dsPIC入門講座04"
-tags : [dsPIC]
+tags : [dsPIC, I2C]
 ---
 
 {% include JB/setup %}
