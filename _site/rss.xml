@@ -5,8 +5,8 @@
         <description>ゼロから始めるロボットプログラミング入門講座 - Daiki Maekawa</description>
         <link>http://DaikiMaekawa.github.io</link>
         <link>http://DaikiMaekawa.github.io</link>
-        <lastBuildDate>2013-11-27T18:42:27+09:00</lastBuildDate>
-        <pubDate>2013-11-27T18:42:27+09:00</pubDate>
+        <lastBuildDate>2013-12-02T17:17:05+09:00</lastBuildDate>
+        <pubDate>2013-12-02T17:17:05+09:00</pubDate>
         <ttl>1800</ttl>
 
 
@@ -17,7 +17,7 @@
 &lt;h2 id=&quot;toc_0&quot;&gt;開発環境&lt;/h2&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;基盤　　　　: SPPBoard(dsPIC30F3014使用)
 コンパイラ　: C30
-XBee        : TODO
+XBee        : XB24-Z7PIT-004
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;hr&gt;
 
@@ -28,6 +28,8 @@ XBee        : TODO
 &lt;p&gt;そこで、今回はXBeeによるdsPIC/PC間通信を題材にUARTを用いてシリアル通信を実装する方法について解説したいと思います。&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;text language-text&quot; data-lang=&quot;text&quot;&gt;dsPIC - XBee(A) &amp;lt;--&amp;gt; XBee(B) - PC
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;XBeeは&lt;a href=&quot;http://akizukidenshi.com/catalog/g/gM-06195/&quot; title=&quot;XB24-Z7PIT-004&quot;&gt;XB24-Z7PIT-004&lt;/a&gt;(PCBアンテナタイプ)を使用します。&lt;/p&gt;
+
 &lt;hr&gt;
 
 &lt;h2 id=&quot;toc_2&quot;&gt;UARTとは&lt;/h2&gt;

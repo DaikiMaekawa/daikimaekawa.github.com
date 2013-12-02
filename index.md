@@ -5,7 +5,36 @@ tagline:
 ---
 {% include JB/setup %}
 
-## ブログ主の自己紹介
+<style>
+#followGithub {
+    color: #121516;
+    text-shadow: 0 1px 1px #ccc;
+    padding: 0.2em 0.4em;
+    
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box;
+
+    -moz-box-shadow: 0px 0px 2px #666;
+    -webkit-box-shadow: 0px 0px 2px #666;
+    box-shadow: 0px 0px 2px #666;
+
+    background-color: #eeeeee;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#eeeeee), to(#aaaaaa));
+    background-image: -webkit-linear-gradient(top, #eeeeee, #aaaaaa);
+    background-image: -moz-linear-gradient(top, #eeeeee, #aaaaaa);
+    background-image: -ms-linear-gradient(top, #eeeeee, #aaaaaa);
+    background-image: -o-linear-gradient(top, #eeeeee, #aaaaaa);
+    background-image: linear-gradient(top, #eeeeee, #aaaaaa);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#eeeeee', EndColorStr='#aaaaaa');
+}
+#followGithub img { position: relative; top: 2px; margin: 0 6px 0 0; }
+</style>  
+
+## ブログ主の自己紹介 
+
+
 
 ソフト開発歴10年未満のひよっこプログラマー
 
@@ -19,9 +48,14 @@ GUIアプリケーション開発、システム設計、ロボット運動制�
 
 2050年までに完全自律の人型ロボットで「FIFA WorldCup」のチャンピオンチームに勝利するという目標を掲げ、その過程で人と技術を育てることを目的としている世界規模のランドマークプロジェクトです。(ロボコンと混同されがちですが別物)
 
-↓我々CITBrainsは毎年行われる世界大会で優秀な成績を残し続けています。
+我々CITBrainsは毎年行われる世界大会で優秀な成績を残し続けています -> [CITBrainsのメインページ](https://sites.google.com/site/hayashibaralab/robocup "CITBrainsのメインページ")
 
-[CITBrainsのメインページ](https://sites.google.com/site/hayashibaralab/robocup "CITBrainsのメインページ")
+<a href="https://github.com/DaikiMaekawa" 
+    title="Follow DaikiMaekawa on Github" 
+    id="followGithub" class="noBg"> 
+    <img src="https://github.com/favicon.ico" />
+    Follow me on Github 
+</a> 
 
 ## このブログについて
 
