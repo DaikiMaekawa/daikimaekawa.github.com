@@ -29,7 +29,7 @@ tagline:
     background-image: linear-gradient(top, #eeeeee, #aaaaaa);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#eeeeee', EndColorStr='#aaaaaa');
 }
-#followButton img { position: relative; top: 2px; margin: 0 6px 0 0; }
+#followButton img { position: relative; top: 2px; margin: -6px 6px 0 0; }
 </style>  
 
 ## ブログ主の自己紹介 
