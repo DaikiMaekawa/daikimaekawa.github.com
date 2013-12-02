@@ -51,14 +51,14 @@ GUIアプリケーション開発、システム設計、ロボット運動制�
 <a href="https://github.com/DaikiMaekawa" 
     title="Follow DaikiMaekawa on Github" 
     id="followButton" class="noBg"> 
-    <img src="https://github.com/favicon.ico" />
+    <img src="https://github.com/favicon.ico" width="18" height="18" />
     Follow me on Github
 </a> 
 
 <a href="http://qiita.com/DaikiMaekawa" 
     title="Follow DaikiMaekawa on Qiita" 
     id="followButton" class="noBg"> 
-    <img src="http://qiita.com/favicon.ico" />
+    <img src="http://qiita.com/favicon.ico" width="18" height="18" />
     Follow me on Qiita
 </a> 
 
