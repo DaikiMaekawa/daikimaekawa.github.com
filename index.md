@@ -6,7 +6,7 @@ tagline:
 {% include JB/setup %}
 
 <style>
-#followGithub {
+#followButton {
     color: #121516;
     text-shadow: 0 1px 1px #ccc;
     padding: 0.2em 0.4em;
@@ -29,12 +29,10 @@ tagline:
     background-image: linear-gradient(top, #eeeeee, #aaaaaa);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#eeeeee', EndColorStr='#aaaaaa');
 }
-#followGithub img { position: relative; top: 2px; margin: 0 6px 0 0; }
+#followButton img { position: relative; top: 2px; margin: 0 6px 0 0; }
 </style>  
 
 ## ブログ主の自己紹介 
-
-
 
 ソフト開発歴10年未満のひよっこプログラマー
 
@@ -52,9 +50,16 @@ GUIアプリケーション開発、システム設計、ロボット運動制�
 
 <a href="https://github.com/DaikiMaekawa" 
     title="Follow DaikiMaekawa on Github" 
-    id="followGithub" class="noBg"> 
+    id="followButton" class="noBg"> 
     <img src="https://github.com/favicon.ico" />
-    Follow me on Github 
+    Follow me on Github
+</a> 
+
+<a href="http://qiita.com/DaikiMaekawa" 
+    title="Follow DaikiMaekawa on Qiita" 
+    id="followButton" class="noBg"> 
+    <img src="http://qiita.com/favicon.ico" />
+    Follow me on Qiita
 </a> 
 
 ## このブログについて
