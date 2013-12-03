@@ -53,8 +53,8 @@ GUIアプリケーション開発、システム設計、ロボット運動制�
     id="followButton" class="noBg"> 
     <img src="https://github.com/favicon.ico" width="18" height="18" />
     Follow me on Github
-</a> 
-[![endorse](https://api.coderwall.com/daikimaekawa/endorsecount.png)](https://coderwall.com/daikimaekawa)
+</a>
+　　[![endorse](https://api.coderwall.com/daikimaekawa/endorsecount.png)](https://coderwall.com/daikimaekawa)
 
 <a href="http://qiita.com/DaikiMaekawa" 
     title="Follow DaikiMaekawa on Qiita" 
