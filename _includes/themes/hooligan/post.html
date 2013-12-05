@@ -1,3 +1,30 @@
+<style>
+#followButton {
+    color: #121516;
+    text-shadow: 0 1px 1px #ccc;
+    padding: 0.2em 0.4em;
+    
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box;
+
+    -moz-box-shadow: 0px 0px 2px #666;
+    -webkit-box-shadow: 0px 0px 2px #666;
+    box-shadow: 0px 0px 2px #666;
+
+    background-color: #eeeeee;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#eeeeee), to(#aaaaaa));
+    background-image: -webkit-linear-gradient(top, #eeeeee, #aaaaaa);
+    background-image: -moz-linear-gradient(top, #eeeeee, #aaaaaa);
+    background-image: -ms-linear-gradient(top, #eeeeee, #aaaaaa);
+    background-image: -o-linear-gradient(top, #eeeeee, #aaaaaa);
+    background-image: linear-gradient(top, #eeeeee, #aaaaaa);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#eeeeee', EndColorStr='#aaaaaa');
+}
+#followButton img { position: relative; top: 2px; margin: -6px 6px 0 0; }
+</style>   
+
 <div class="page-header">
   <h1>
     {{ page.title }} 
@@ -49,6 +76,32 @@
           {% include JB/tags_list %}
         </ul>
       </section>
+      <section>
+        <h4>Profile</h4>
+
+        <p>チームでロボット作ってたり、他にも趣味でいろいろやってます。</p>
+        
+        <p><a href="/index.html">詳しい自己紹介はこちら</a></p>
+        
+        <p><a href="https://github.com/DaikiMaekawa" 
+            title="Follow DaikiMaekawa on Github" 
+            id="followButton" class="noBg"> 
+            <img src="https://github.com/favicon.ico" width="18" height="18" />
+            Follow me on Github
+        </a> </p>
+
+        <p><a href="http://qiita.com/DaikiMaekawa" 
+            title="Follow DaikiMaekawa on Qiita" 
+            id="followButton" class="noBg"> 
+            <img src="http://qiita.com/favicon.ico" width="18" height="18" />
+            Follow me on Qiita
+        </a> </p> 
+
+        <p><a href="https://coderwall.com/daikimaekawa">
+            <img src="https://api.coderwall.com/daikimaekawa/endorsecount.png" 
+            alt="endorse">
+        </a> </p> 
+      </section>    
     {% endunless %}         
   </div>
 </div>
