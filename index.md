@@ -32,7 +32,7 @@ tagline:
 #followButton img { position: relative; top: 2px; margin: -6px 6px 0 0; }
 </style>  
 
-## ブログ主の自己紹介 
+##ブログ主の自己紹介　
 
 ソフト開発歴10年未満のひよっこプログラマー
 
@@ -48,6 +48,8 @@ GUIアプリケーション開発、システム設計、ロボット運動制�
 
 我々CITBrainsは毎年行われる世界大会で優秀な成績を残し続けています -> [CITBrainsのメインページ](https://sites.google.com/site/hayashibaralab/robocup "CITBrainsのメインページ")
 
+![gravator](https://2.gravatar.com/avatar/41da189ffc08a2ed46e9a1416f4db136?d=https%3A%2F%2Fidenticons.github.com%2F726114dd8781c27fa4551d9af7886827.png&r=x&s=100)
+
 <a href="https://github.com/DaikiMaekawa" 
     title="Follow DaikiMaekawa on Github" 
     id="followButton" class="noBg"> 
@@ -62,6 +64,8 @@ GUIアプリケーション開発、システム設計、ロボット運動制�
     <img src="http://qiita.com/favicon.ico" width="18" height="18" />
     Follow me on Qiita
 </a> 
+
+**********
 
 ## このブログについて
 
