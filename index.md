@@ -73,6 +73,14 @@ tagline:
 
 このサイトのRSSを購読する -> [RSS Feed](http://daikimaekawa.github.io/rss.xml "RSS Feed")
 
+###総訪問者数
+
+<script language="Javascript">
+document.write('<a href="http://www.f-counter.jp/k2/65/17/1386490417/"></a>');</script><noscript>
+<a href=http://qhg.f-counter.com/>カウンター</a></noscript>
+<a href=http://www.free-counter.jp/>
+<img src="http://www.f-counter.net/j/17/1386490417/" alt="アクセスカウンター" border="0"></a>
+
 ## Posts List
 
 <ul class="posts">
