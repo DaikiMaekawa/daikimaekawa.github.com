@@ -2,18 +2,21 @@
 title: "RoombaのROSドライバをソースからビルドして使ってみる"
 layout: post
 category : ROS
-tagline: "Roombaで遊ぼう01"
+tagline: ""
 tags : [ROS, Roomba]
 ---
 
 {% include JB/setup %}
 
-**********
-
 ##開発環境
 
-    OS     : Ubuntu12.04  
-    ROS ver: Groovy  
+### OS
+
+ * Ubuntu12.04
+
+### ROS ver
+
+ * Groovy
 
 **********
 
