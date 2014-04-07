@@ -60,11 +60,9 @@ hector_slamを動かすにはLaserScanが必要なのでdepthimage_to_laserscan�
 
 XtionとPCだけで地図が描けました。(Xtionを水平に保つためイスは使ってますが)
 
-![rviz]({{ BASE_PATH }}/images/hector_slam/rviz.png)
+これが動作時の動画です。
 
-動画へのリンクも貼っておきます。
-
-[![rviz](http://img.youtube.com/vi/tGUzG2srefI&feature=youtu.be/10.jpg)](http://www.youtube.com/watch?v=tGUzG2srefI&feature=youtu.be)
+[![rviz](http://img.youtube.com/vi/tGUzG2srefI/0.jpg)](http://www.youtube.com/watch?v=tGUzG2srefI)
 
 オドメトリ無しでこれだけ綺麗に地図が描けるのはすばらしいのですがやはり広い空間で試してみるとうまくいかない…
 
