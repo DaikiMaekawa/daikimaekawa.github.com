@@ -58,9 +58,15 @@ hector_slamを動かすにはLaserScanが必要なのでdepthimage_to_laserscan�
 
     roslaunch hector_openni.launch
 
-XtionとPCだけで地図が描けました。(Xtionを水平に保つためイスは使ってますが)
+一応動作時のシステム図も載っけときます。
 
-これが動作時の動画です。
+    rqt_graph
+
+![rosgraph]({{ BASE_PATH }}/images/hector_slam/rosgraph_openni.png)
+
+XtionとPCを用意すればこれだけで地図が描けます。(Xtionを水平に保つためイスは使ってますが)
+
+動作時の動画へのリンクです。
 
 [![rviz](http://img.youtube.com/vi/tGUzG2srefI/0.jpg)](http://www.youtube.com/watch?v=tGUzG2srefI)
 
