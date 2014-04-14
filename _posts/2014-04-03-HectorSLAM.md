@@ -18,7 +18,7 @@ tags : [ROS, SLAM]
 
  * Hydro
 
-### 距離センサ
+### 深度センサ
 
  * Xtion Pro Live
 
