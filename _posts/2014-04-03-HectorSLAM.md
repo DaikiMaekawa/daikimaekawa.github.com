@@ -1,5 +1,5 @@
 ---
-title: "ROSのオドメトリフリーなSLAMノードで遊んでみる"
+title: "ROSでオドメトリフリーなSLAMを動かしてみよう"
 layout: post
 category : ROS
 tagline: 
@@ -26,9 +26,13 @@ tags : [ROS, SLAM]
 
 OpenNIはライセンス的に今度どうなっていくのか非常に不安ですし、ついにXtionが供給終了になりましたね…
 
-なんか久しぶりにXtionで遊びたくなってきたのでオドメトリフリーなSLAMノードを使って地図でも描かせようと思います。
+なんか久しぶりにXtionで遊びたくなってきたのでhector_slamを使って地図でも描かせようと思います。
 
-本当はURG等のLRFを使った方が良いのですがXtionでどこまでできるのか確かめてみましょう。
+hector_slamはURG等の高レートが出せるLRFを生かしてオドメトリフリーなSLAMを実現します。
+
+更にロール軸とピッチ軸のずれに対しても頑健に作られており、非常にロバストな動作が期待できる点で優れています。
+
+Xtionはスペック的に心配ですがどこまでできるのか確かめてみましょう。
 
 まず必要なものをインストール
 
@@ -64,15 +68,13 @@ hector_slamを動かすにはLaserScanが必要なのでdepthimage_to_laserscan�
 
 ![rosgraph]({{ BASE_PATH }}/images/hector_slam/rosgraph_openni.png)
 
-XtionとPCを用意すればこれだけで地図が描けます。(Xtionを水平に保つためイスは使ってますが)
+XtionとPCを用意すればこれだけで地図が描けます。
 
 動作時の動画へのリンクです。
 
 [![rviz](http://img.youtube.com/vi/tGUzG2srefI/0.jpg)](http://www.youtube.com/watch?v=tGUzG2srefI)
 
 オドメトリ無しでこれだけ綺麗に地図が描けるのはすばらしいのですがやはり広い空間で試してみるとうまくいかない…
-
-Xtionはレンジが短く精度も低いので当たり前ですけどね。
 
 作成者もKinectとXtionでは精度が出なかったためURGをお勧めすると言ってますから今度はそちらで試してみましょう。
 
