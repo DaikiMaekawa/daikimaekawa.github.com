@@ -38,7 +38,7 @@ navigationはセンサーの情報を元に目的地への経路を計画し台�
 
 ## 概要
 
-![overview]({{ BASE_PATH }}/images/navigation/overview.png)
+![overview]({{ BASE_PATH }}/images/navigation/overview.jpg)
 
 move_baseはnavigation関係のプラグインを集め実体化しているものです。
 
