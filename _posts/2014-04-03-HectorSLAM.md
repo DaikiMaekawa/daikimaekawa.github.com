@@ -70,9 +70,7 @@ hector_slamを動かすにはLaserScanが必要なのでdepthimage_to_laserscan�
 
 XtionとPCを用意すればこれだけで地図が描けます。
 
-動作時の動画へのリンクです。
-
-[![rviz](http://img.youtube.com/vi/tGUzG2srefI/0.jpg)](http://www.youtube.com/watch?v=tGUzG2srefI)
+<iframe width="640" height="360" src="//www.youtube.com/embed/tGUzG2srefI" frameborder="0" allowfullscreen></iframe>
 
 オドメトリ無しでこれだけ綺麗に地図が描けるのはすばらしいのですがやはり広い空間で試してみるとうまくいかない…
 

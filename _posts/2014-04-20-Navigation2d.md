@@ -80,7 +80,5 @@ hector_slamを使用してオドメトリ無しで地図を描かせながら自
 
 まあ、自己位置推定はURGのみで行ってますけどね。
 
-動作時の動画へのリンク
-
-[![rviz](http://img.youtube.com/vi/c68E9-21fkw/0.jpg)](https://www.youtube.com/watch?v=c68E9-21fkw)
+<iframe width="640" height="480" src="//www.youtube.com/embed/c68E9-21fkw" frameborder="0" allowfullscreen></iframe>
 
