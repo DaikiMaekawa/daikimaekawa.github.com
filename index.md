@@ -11,9 +11,12 @@ tagline:
 
 ロボカップ世界一を目指して自律ヒューマノイドロボットを開発しています。
 
-その他にも趣味でいろいろやってます。
+自然言語での会話はあまり得意ではないのでコンピュータ言語で絡まれると喜びます。
 
-[詳しい自己紹介はこちら](http://about.me/DaikiMaekawa "詳しい自己紹介はこちら")
+コーディングに至上の喜びを感じる体質で仕事、プライベート問わず一日の大半をGitHub上で過ごしています。
+
+<script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
+<script type="IN/MemberProfile" data-id="http://www.linkedin.com/in/daikimaekawa" data-format="inline" data-related="false"></script>
 
 **********
 
