@@ -2,7 +2,7 @@
 title: "MoveIt! + RVizでグラフィカルなモーションプランニング環境"
 layout: post
 category : ROS
-tagline: NEXTAGEで遊ぼう
+tagline: <p>NEXTAGEで遊ぼう</p>
 tags : [ROS, MoveIt!]
 ---
 
