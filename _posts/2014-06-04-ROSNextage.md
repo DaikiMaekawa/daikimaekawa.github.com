@@ -18,7 +18,7 @@ tags : [ROS, MoveIt!]
 
 ## はじめに
 
-6月14日に開催する第二回ROS勉強会はROS対応版NEXTAGE2台を使ってハッカソンを行う予定です。
+6月14日に開催する[第二回ROS勉強会](http://ros-users.doorkeeper.jp/events/11230)はROS対応版NEXTAGE2台を使ってハッカソンを行う予定です。
 
 そこで、NEXTAGEハッカソンに参加される方向けに、MoveIt!を使ってNEXTAGEを制御する方法について解説していきたいと思います。
 
