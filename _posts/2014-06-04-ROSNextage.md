@@ -49,7 +49,7 @@ http://www.youtalk.jp/post/86493954928/make-ros-package
 
  * Motion Planningプラグインを用いてRVizでグラフィカルに制御
 
-今回はMoveIt!のRVizプラグインを使って、グラフィカルに目標値を設定してモーションプランニングを行う方法を紹介します。
+今回はMoveIt!のRVizプラグインを使って、GUI上で目標値を設定してモーションプランニングを実行する方法について解説します。
 
 ## NEXTAGEを動かしてみよう
 
