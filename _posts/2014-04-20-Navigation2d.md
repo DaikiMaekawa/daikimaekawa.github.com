@@ -70,7 +70,9 @@ hector_slamを使用してオドメトリ無しで地図を描かせながら自
 
 サンプルは[GitHubにアップ](https://github.com/DaikiMaekawa/ros-navigation2d-example)しました。
 
-    $ roslaunch navigation2d_example move_base.launch
+```sh
+$ roslaunch navigation2d_example move_base.launch
+```
 
 システム図
 
