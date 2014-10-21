@@ -1,5 +1,5 @@
 ---
-title: "PepperのWorkshopに行って来ました"
+title: "PepperのWorkshopに参加しました"
 layout: post
 category : Event
 tagline: <p>ロボットエンジニアから見たPepperの感想</p>
