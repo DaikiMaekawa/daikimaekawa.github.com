@@ -2,7 +2,7 @@
 title: "PepperのWorkshopに行って来ました"
 layout: post
 category : Event
-tagline:
+tagline: <p>ロボットエンジニアから見たPepperの感想</p>
 tags : [Pepper, Event]
 ---
 
