@@ -9,9 +9,15 @@ tagline:
 
 ロボット開発への熱い情熱と世界最高峰の技術が集結したチーム「CITBrains」のリーダー。
 
-ロボカップ世界一を目指して自律ヒューマノイドロボットを開発しています。
+ロボカップにおける自律サッカーヒューマノイドの開発をしています。
 
-生息地：GitHub
+ * 2014年度世界大会でルイヴィトンベストヒューマノイドを獲得
+
+ * 2013年度テクニカルチャレンジ世界一位
+
+ * 2012年度Kidサイズ総合世界一位
+
+ * 日本大会5連覇中
 
 <script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
 <script type="IN/MemberProfile" data-id="http://www.linkedin.com/in/daikimaekawa" data-format="inline" data-related="false"></script>
