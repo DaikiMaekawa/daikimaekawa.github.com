@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Home
-tagline: 
+tagline:
 ---
 {% include JB/setup %}
 
@@ -26,7 +26,7 @@ tagline:
 
 ## このブログについて
 
-私自身の備忘録としてや後輩への資料として、ソフトウェア開発に関する情報を不定期に更新します。
+主にロボット関係ですがソフトウェア開発に関する情報を不定期に更新します。
 
 このブログはGitHub Pages + jekyllで運営されています。
 
