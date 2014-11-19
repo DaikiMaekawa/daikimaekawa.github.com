@@ -30,7 +30,7 @@ tagline:
 
 このブログはGitHub Pages + jekyllで運営されています。
 
-このサイトのRSSを購読する -> [RSS Feed](http://daikimaekawa.github.io/rss.xml "RSS Feed")
+[このサイトのRSSを購読する](http://daikimaekawa.github.io/rss.xml "RSS Feed")
 
 ###総訪問者数
 
