@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Home
-tagline: 
+tagline:
 ---
 {% include JB/setup %}
 
@@ -9,9 +9,15 @@ tagline:
 
 ロボット開発への熱い情熱と世界最高峰の技術が集結したチーム「CITBrains」のリーダー。
 
-ロボカップ世界一を目指して自律ヒューマノイドロボットを開発しています。
+ロボカップにおける自律サッカーヒューマノイドの開発をしています。
 
-生息地：GitHub
+ * 2014年度世界大会でルイヴィトンベストヒューマノイドを獲得
+
+ * 2013年度テクニカルチャレンジ世界一位
+
+ * 2012年度Kidサイズ総合世界一位
+
+ * 日本大会5連覇中
 
 <script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
 <script type="IN/MemberProfile" data-id="http://www.linkedin.com/in/daikimaekawa" data-format="inline" data-related="false"></script>
@@ -20,11 +26,11 @@ tagline:
 
 ## このブログについて
 
-私自身の備忘録としてや後輩への資料として、ソフトウェア開発に関する情報を不定期に更新します。
+主にロボット関係ですがソフトウェア開発に関する情報を不定期に更新します。
 
 このブログはGitHub Pages + jekyllで運営されています。
 
-このサイトのRSSを購読する -> [RSS Feed](http://daikimaekawa.github.io/rss.xml "RSS Feed")
+[このサイトのRSSを購読する](http://daikimaekawa.github.io/rss.xml "RSS Feed")
 
 ###総訪問者数
 

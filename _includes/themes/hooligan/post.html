@@ -89,12 +89,60 @@
         <h4>Profile</h4>
 
         <p>ロボット開発への熱い情熱と世界最高峰の技術が集結したチーム「CITBrains」のリーダー。</p>
-        <p>ロボカップ世界一を目指して自律ヒューマノイドロボットを開発しています。</p>
-        <p>生息地：GitHub </p>
-        
+        <p>ロボカップにおける自律サッカーヒューマノイドの開発をしています。</p>
+        <p>2014年度世界大会でルイヴィトンベストヒューマノイドを獲得</p>
+        <p>2013年度テクニカルチャレンジ世界一位</p>
+        <p>2012年度Kidサイズ総合世界一位</p>
+        <p>日本大会5連覇中</p>
         <script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
 <script type="IN/MemberProfile" data-id="http://www.linkedin.com/in/daikimaekawa" data-format="inline" data-related="false"></script>
         
+      </section>
+      <section>
+        <br>　</br>
+        <html>
+          <head>
+          <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'> </script>
+          <link href="http://coderwall.com/stylesheets/jquery.coderwall.css" media="all" rel="stylesheet" type="text/css">
+          <script src="http://coderwall.com/javascripts/jquery.coderwall.js"></script>
+          <style type="text/css">
+            #badge_description {
+            display:none;
+            position:absolute;
+            padding:5px; margin-left:10px;
+            color:white;background-color:#505050;
+          }
+          </style>
+          <script type="text/javascript">
+          function set_description() {
+            var msg_box;
+            $("img").hover(function(){
+            if ( $(this).hasClass("coderwall-badge")) {
+              var text = $(this).attr("alt");
+              var offset = $(this).offset();
+              msg_box = $("#badge_description").get(0);
+              msg_box.style.display = "inline";
+              msg_box.innerText = text;
+              msg_box.textContent = text;
+              msg_box.style.left = offset.left;
+              msg_box.style.top = offset.top + 60;
+            }
+          }, function() {
+            msg_box = $("#badge_description").get(0);
+            msg_box.style.display = "none";
+          });
+          };
+          </script>
+          </head>
+          <body onload="set_description()">
+            <section class="coderwall" data-coderwall-username="daikimaekawa" data-coderwall-orientation="horizontal"></section>
+            <span id="badge_description">badge_description about badge's</span>
+          </body>
+        </html>
+        
+      </section>
+      <section>
+        <br>　</br>
         <p><a href="https://github.com/DaikiMaekawa" 
             title="Follow DaikiMaekawa on Github" 
             id="followButton" class="noBg"> 
