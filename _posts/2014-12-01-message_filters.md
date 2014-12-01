@@ -10,6 +10,8 @@ tags : [ROS, message_filters]
 
 ### はじめに
 
+この記事はROS Advent Calendar 2014の1日目の記事です。
+
 message_filtersでタイムスタンプがおおよそ一致した際にコールバックを呼び出したい場合にはApproximateTimeポリシーを使用することで実現できます。
 
 ### message_filters
