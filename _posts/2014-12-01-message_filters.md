@@ -8,13 +8,13 @@ tags : [ROS, message_filters]
 
 {% include JB/setup %}
 
-### はじめに
+## はじめに
 
-この記事はROS Advent Calendar 2014の1日目の記事です。
+この投稿は[ROS Advent Calendar 2014](http://qiita.com/advent-calendar/2014/ros)の1日目の記事です。
 
-message_filtersでタイムスタンプがおおよそ一致した際にコールバックを呼び出したい場合にはApproximateTimeポリシーを使用することで実現できます。
+message_filtersでタイムスタンプがおおよそ一致した際にコールバックを呼び出すためにはApproximateTimeポリシーを使用します。
 
-### message_filters
+## message_filters
 
 まず、message_filterをご存知無い方のために簡単に説明します。
 
@@ -26,7 +26,7 @@ message_filtersはROSのメッセージに対して手軽にフィルタリン�
 
 http://wiki.ros.org/message_filters
 
-### ApproximateTime Policy
+## ApproximateTime Policy
 
 サンプルコードを載せておきます。
 
