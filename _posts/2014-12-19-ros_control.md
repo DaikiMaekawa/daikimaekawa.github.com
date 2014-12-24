@@ -300,7 +300,7 @@ RobotHWSimはgazeboへはプラグインとして読み込ませる必要があ�
 
 また、シミュレータ用には標準実装のDefaultRobotHWSimが用意されていて振る舞いを拡張する必要がない場合はこちらを使用します。
 
-継承関係を以下の図に示します。
+因みに継承関係を以下の図のようになっています。
 
 ![robot_hw_sim]({{BASE_PATH}}/images/ros_control/robot_hw_sim.png)
 
