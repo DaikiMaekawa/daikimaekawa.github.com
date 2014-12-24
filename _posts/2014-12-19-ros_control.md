@@ -396,10 +396,9 @@ SampleRobotHWSimはpluginlibを使用することによりプラグインとし�
 **package.xml**
 
 ```xml
-  <export>
-    <gazebo_ros_control plugin="${prefix}/sample_robot_hw_sim_plugins.xml"/>
-  </export>
-</package>
+<export>
+  <gazebo_ros_control plugin="${prefix}/sample_robot_hw_sim_plugins.xml"/>
+</export>
 ```
 
 生成したSampleRobotHWSimを読み込むにはsample_robot.xacroに以下のコードを追加します。
