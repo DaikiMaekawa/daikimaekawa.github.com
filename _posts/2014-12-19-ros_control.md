@@ -12,7 +12,7 @@ tags : [ROS, ros_control]
 
 ## はじめに
 
-ros_controlはROSのノード間通信に依らずロボット間のハードウェアの違いを吸収し、モジュールのポータビリティを確保することを目的としています。
+ros_controlはROSのノード間通信に依らずロボット間のハードウェアの違いを吸収し、モジュールの可搬性を確保することを目的としています。
 
 元はpr2_mechanismとして開発されていたものをPR2以外のロボットにも適用可能なように一般化したものです。
 
@@ -154,7 +154,7 @@ joint_state_controller:
     type: joint_state_controller/JointStateController
     publish_rate: 100
 
-robot:
+sample_robot:
     type        : "diff_drive_controller/DiffDriveController"
     left_wheel  : 'left_wheel_hinge'
     right_wheel : 'right_wheel_hinge'
@@ -195,7 +195,7 @@ controller_managerに設定を読み込ませます。
 
 <!-- load the controllers -->
 <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
-    output="screen" args="robot joint_state_controller">
+    output="screen" args="sample_robot joint_state_controller">
 </node>
 
 ```
@@ -293,7 +293,7 @@ int main(int argc, char **argv){
 
 ## RobotHWSim
 
-実機の時はRobotHW, シミュレータの時はRobotHWSimを継承したクラスをそれぞれ定義します。
+実機の時はRobotHW, シミュレータの時はRobotHWSimを継承したクラスをそれぞれ定義して使用します。
 
 RobotHWSimはgazeboへはプラグインとして読み込ませる必要があります。
 
@@ -422,5 +422,7 @@ sample_robotのモデルをgazeboに読み込ませます。
           args="-urdf -model sample_robot -param robot_description"/>
 ```
 
-解説は以上で終わりです。
+ros_controlを使うことで実機とシミュレータの互換性をシステムを簡便に構築することができます。
+
+また、各要素はプラグインとして入れ替えが可能なので、可搬性を保ちつつそれぞれのロボットのハードウェアに合わせた処理を実装することもできます。
 
