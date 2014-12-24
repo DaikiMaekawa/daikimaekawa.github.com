@@ -26,6 +26,7 @@ http://wiki.ros.org/ros_control
 
 ![transmission]({{BASE_PATH}}/images/ros_control/gazebo_transmission.png)
 
+大まかにコントローラ、ハードウェアインタフェース、トランスミッションの三つの要素から構成されます。
 
 ### 1. Controllers
 
