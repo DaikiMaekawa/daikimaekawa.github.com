@@ -7,17 +7,15 @@ tagline:
 
 ##ブログ主の自己紹介
 
-ロボット開発への熱い情熱と世界最高峰の技術が集結したチーム「CITBrains」のリーダー。
+Rapyuta Roboticsで警備ドローンを開発しています。
 
-ロボカップにおける自律サッカーヒューマノイドの開発をしています。
+学部時代は自律サッカーヒューマノイドの開発プロジェクトのリーダーをやってました。
 
- * 2014年度世界大会でルイヴィトンベストヒューマノイドを獲得
+2014年度ロボカップ世界大会で優勝し、ルイヴィトンベストヒューマノイドを獲得
 
- * 2013年度テクニカルチャレンジ世界一位
+ros-jpの勉強会主催者
 
- * 2012年度Kidサイズ総合世界一位
-
- * 日本大会5連覇中
+つくばチャレンジ等にも参加
 
 <script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
 <script type="IN/MemberProfile" data-id="http://www.linkedin.com/in/daikimaekawa" data-format="inline" data-related="false"></script>
