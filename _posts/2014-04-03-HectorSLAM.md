@@ -58,7 +58,7 @@ hector_slamを動かすにはLaserScanが必要なのでdepthimage_to_laserscan�
 
 個別に起動するのは面倒なのでlaunchファイル作りました。
 
-[launchファイルをダウンロード](https://github.com/DaikiMaekawa/hector-slam-example)
+[launchファイルをダウンロード](https://github.com/DaikiMaekawa/hector_slam_example)
 
     roslaunch hector_openni.launch
 
