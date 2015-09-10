@@ -7,15 +7,13 @@ tagline:
 
 ##ブログ主の自己紹介
 
-Rapyuta Roboticsで警備ドローンを開発しています。
+大学を休学してRapyuta Roboticsで警備ドローンを開発しています。
 
-学部時代は自律サッカーヒューマノイドの開発プロジェクトのリーダーをやってました。
+日本にいた頃はros-jpの勉強会主催者をやっていました。
 
-2014年度ロボカップ世界大会で優勝し、ルイヴィトンベストヒューマノイドを獲得
+また、ロボカップの世界大会優勝チームCITBrainsやつくばチャレンジのProject ORNEを始め、複数のロボット開発プロジェクトに参加していました。
 
-ros-jpの勉強会主催者
-
-つくばチャレンジ等にも参加
+行雲流水の如く生きていきたい
 
 <script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
 <script type="IN/MemberProfile" data-id="http://www.linkedin.com/in/daikimaekawa" data-format="inline" data-related="false"></script>
