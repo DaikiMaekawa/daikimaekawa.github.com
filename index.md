@@ -13,7 +13,7 @@ tagline:
 
 また、ロボカップの世界大会優勝チームCITBrainsやつくばチャレンジのProject ORNEを始め、複数のロボット開発プロジェクトに参加していました。
 
-行雲流水の如く生きていきたい
+行雲流水の如く在るべき場所へと流れ行く者
 
 <script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
 <script type="IN/MemberProfile" data-id="http://www.linkedin.com/in/daikimaekawa" data-format="inline" data-related="false"></script>
