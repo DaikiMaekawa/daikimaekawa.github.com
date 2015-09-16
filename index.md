@@ -13,7 +13,7 @@ tagline:
 
 また、ロボカップの世界大会優勝チームCITBrainsやつくばチャレンジのProject ORNEを始め、複数のロボット開発プロジェクトに参加していました。
 
-「目標と努力の内積がその人の結果になる」
+「目標と努力の内積はその人の結果を表す」
 
 <script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
 <script type="IN/MemberProfile" data-id="http://www.linkedin.com/in/daikimaekawa" data-format="inline" data-related="false"></script>
