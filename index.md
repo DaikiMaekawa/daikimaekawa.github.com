@@ -7,13 +7,11 @@ tagline:
 
 ##ブログ主の自己紹介
 
-大学を休学してRapyuta Roboticsで警備ドローンを開発しています。
+Rapyuta Roboticsでロボット開発に従事。
 
-日本にいた頃はros-jpの勉強会主催者をやっていました。
+ros-jpの勉強会の主催やロボカップ世界大会優勝チームのリーダをやってました。
 
-また、ロボカップの世界大会優勝チームCITBrainsやつくばチャレンジのProject ORNEを始め、複数のロボット開発プロジェクトに参加していました。
-
-「目標と努力の内積がその人の結果になる」
+学生時代は多くのプロジェクトに顔を出してたので覚えている人もいるかも。
 
 <script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
 <script type="IN/MemberProfile" data-id="http://www.linkedin.com/in/daikimaekawa" data-format="inline" data-related="false"></script>
