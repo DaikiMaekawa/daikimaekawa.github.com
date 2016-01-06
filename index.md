@@ -11,7 +11,7 @@ Rapyuta Roboticsでロボット開発に従事。
 
 ros-jpの勉強会の主催やロボカップ世界大会優勝チームのリーダをやってました。
 
-学生時代は多くのプロジェクトに顔を出してたので覚えている人もいるかも。
+学生時代は様々なプロジェクトに顔を出していました。
 
 <script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
 <script type="IN/MemberProfile" data-id="http://www.linkedin.com/in/daikimaekawa" data-format="inline" data-related="false"></script>
